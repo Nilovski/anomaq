@@ -583,7 +583,7 @@ footer{padding:56px 48px;border-top:1px solid var(--border);display:flex;align-i
           <!-- Reps -->
           <div style="display:flex;gap:6px;align-items:center;border:1px solid var(--border);border-radius:10px;padding:5px 10px;background:rgba(255,255,255,.8)">
             <span style="font-family:var(--mono);font-size:.6rem;color:var(--ink4)">REPS</span>
-            <input type="range" min="1" max="4" value="2" id="reps-slider" oninput="document.getElementById('reps-val').textContent=this.value;qConfig.reps=+this.value" style="width:52px;accent-color:var(--ink);cursor:pointer">
+            <input type="range" min="1" max="2" value="2" id="reps-slider" oninput="document.getElementById('reps-val').textContent=this.value;qConfig.reps=+this.value" style="width:52px;accent-color:var(--ink);cursor:pointer" title="Higher reps = deeper circuit but much slower. Capped at 2 for Render compatibility.">
             <span style="font-family:var(--mono);font-size:.72rem;color:var(--ink);min-width:10px" id="reps-val">2</span>
           </div>
           <label class="q-toggle">
@@ -818,7 +818,7 @@ function render(data,useQ){
     <div class="stat-p"><div class="spv">${data.meta.rows}</div><div class="spl">ROWS</div></div>
     <div class="stat-p"><div class="spv">${data.meta.features?.length||'—'}</div><div class="spl">FEATURES</div></div>
     <div class="stat-p sc"><div class="spv">${data.summary.classical_unique??'—'}</div><div class="spl">CLASSICAL</div></div>
-    <div class="stat-p sq"><div class="spv">${data.summary.quantum_flagged??'N/A'}</div><div class="spl">QUANTUM</div></div>
+    <div class="stat-p sq"><div class="spv">${data.quantum?.error?'⚠':data.summary.quantum_flagged??'N/A'}</div><div class="spl">${data.quantum?.error?'Q ERROR':'QUANTUM'}</div></div>
     <div class="stat-p sd"><div class="spv">${data.summary.quantum_only??'—'}</div><div class="spl">UNIQUE ⬡</div></div>
   </div>`;
 
@@ -930,6 +930,17 @@ function render(data,useQ){
       });
       html+=`<div class="rsec"><div class="sec-tag"><div class="tag-d" style="background:var(--purple)"></div>Quantum-Only Detections</div>${qoH}</div>`;
     }
+  }
+
+  // Quantum error or disabled notice
+  if(useQ&&data.quantum&&data.quantum.error){
+    html+=`<div class="rsec"><div class="sec-tag"><div class="tag-d" style="background:var(--danger)"></div>Quantum Kernel — Error</div>
+    <div style="padding:14px 18px;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.18);border-radius:var(--r);font-family:var(--mono);font-size:.74rem;color:var(--danger);line-height:1.6">
+      ⚠ ${data.quantum.error}<br>
+      <span style="color:var(--ink4);font-size:.68rem;margin-top:6px;display:block">Classical results above are complete. Try a smaller dataset or disable quantum for classical-only analysis.</span>
+    </div></div>`;
+  } else if(!useQ){
+    // quantum disabled — nothing to show
   }
 
   el.innerHTML=html;
