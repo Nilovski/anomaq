@@ -214,24 +214,32 @@ def run_detection(df, use_quantum, emit, feature_map_type="ZZ", entanglement="li
 
     # ── Quantum ────────────────────────────────────────────────
     quantum = None
-    QUANTUM_MAX = 60  # ~60 rows keeps kernel under 20s on Render free tier
+    # Safety caps: keep statevector simulation under ~20s on Render free tier
+    QUANTUM_MAX = 50        # max rows (50×50 = 2500 kernel evals ≈ 15s)
+    MAX_QUBITS  = 4         # 2^4 = 16-dim statevector, fast
+    MAX_REPS    = 2         # reps≥3 doubles gate depth, kills perf
+    safe_reps   = min(reps, MAX_REPS)
+    safe_ent    = "linear"  # full entanglement grows as O(n²) gates
+
     if use_quantum:
         try:
-            emit("progress", {"pct": 62, "label": "Reducing dimensions with PCA..."})
             from qiskit.circuit.library import ZZFeatureMap, PauliFeatureMap
+            from qiskit_machine_learning.kernels import FidelityQuantumKernel
 
-            # Smart sampling for large datasets
+            emit("progress", {"pct": 62, "label": "Reducing dimensions with PCA..."})
+
+            # Subsample large datasets
             if n_samples > QUANTUM_MAX:
                 sample_idx = np.random.choice(n_samples, QUANTUM_MAX, replace=False)
                 sample_idx = np.sort(sample_idx)
                 X_q_input = X[sample_idx]
-                emit("progress", {"pct": 63, "label": f"Dataset has {n_samples} rows — using {QUANTUM_MAX}-row quantum sample..."})
+                emit("progress", {"pct": 63, "label": f"Large dataset ({n_samples} rows) — quantum kernel on {QUANTUM_MAX}-row stratified sample..."})
             else:
                 sample_idx = np.arange(n_samples)
                 X_q_input = X
 
             n_q_samples = len(sample_idx)
-            n_components = min(5, len(numeric_cols), n_q_samples-1)
+            n_components = min(MAX_QUBITS, len(numeric_cols), n_q_samples - 1)
             pca = PCA(n_components=n_components)
             X_pca = pca.fit_transform(X_q_input)
             variance_retained = float(pca.explained_variance_ratio_.sum())
@@ -239,24 +247,21 @@ def run_detection(df, use_quantum, emit, feature_map_type="ZZ", entanglement="li
             q_scaler = MinMaxScaler(feature_range=(0, np.pi))
             X_q = q_scaler.fit_transform(X_pca)
 
-            emit("progress", {"pct": 70, "label": f"Building {n_components}-qubit {feature_map_type}FeatureMap (reps={reps}, {entanglement})..."})
+            emit("progress", {"pct": 70, "label": f"Building {n_components}-qubit {feature_map_type}FeatureMap (reps={safe_reps}, {safe_ent})..."})
             if feature_map_type == "Pauli":
-                from qiskit.circuit.library import PauliFeatureMap
-                feature_map = PauliFeatureMap(feature_dimension=n_components, reps=reps, entanglement=entanglement)
+                feature_map = PauliFeatureMap(feature_dimension=n_components, reps=safe_reps, entanglement=safe_ent)
             else:
-                feature_map = ZZFeatureMap(feature_dimension=n_components, reps=reps, entanglement=entanglement)
-            from qiskit_machine_learning.kernels import FidelityQuantumKernel
+                feature_map = ZZFeatureMap(feature_dimension=n_components, reps=safe_reps, entanglement=safe_ent)
             qk = FidelityQuantumKernel(feature_map=feature_map)
 
-            emit("progress", {"pct": 76, "label": f"Computing quantum kernel matrix ({n_q_samples}×{n_q_samples} pairs)..."})
+            emit("progress", {"pct": 76, "label": f"Computing {n_q_samples}×{n_q_samples} quantum kernel matrix..."})
             t0 = time.time()
             K = qk.evaluate(X_q)
-            q_time = round(time.time()-t0, 2)
+            q_time = round(time.time() - t0, 2)
 
             emit("progress", {"pct": 91, "label": f"Kernel done in {q_time}s — fitting quantum SVM..."})
             qsvm = OneClassSVM(kernel='precomputed', nu=contamination)
             qsvm_pred = qsvm.fit_predict(K)
-            # Map sample indices back to original
             qsvm_outliers_local = np.where(qsvm_pred == -1)[0].tolist()
             qsvm_outliers = [int(sample_idx[i]) for i in qsvm_outliers_local]
 
@@ -266,46 +271,46 @@ def run_detection(df, use_quantum, emit, feature_map_type="ZZ", entanglement="li
             ranked = [int(sample_idx[i]) for i in ranked_local]
             quantum_only = set(qsvm_outliers) - all_classical
 
-            qonly_details = []
-            for idx in quantum_only:
+            def get_feats(idx):
                 feats = []
                 for fname in numeric_cols:
                     val = float(df.iloc[idx][fname])
                     col_vals = df[fname].values
-                    z = float(abs(val-col_vals.mean())/col_vals.std()) if col_vals.std()>0 else 0.0
-                    feats.append({"name":fname,"value":round(val,4),"z_score":round(z,2)})
-                insight = domain_cfg["insight"](feats)
-                qonly_details.append({"idx":idx,"label":get_label(idx),"features":feats,"insight":insight})
+                    z = float(abs(val - col_vals.mean()) / col_vals.std()) if col_vals.std() > 0 else 0.0
+                    feats.append({"name": fname, "value": round(val, 4), "z_score": round(z, 2)})
+                return feats
 
-            # Also add insight to all quantum outliers
+            qonly_details = []
+            for idx in quantum_only:
+                feats = get_feats(idx)
+                qonly_details.append({"idx": idx, "label": get_label(idx), "features": feats,
+                                       "insight": domain_cfg["insight"](feats)})
+
             q_outlier_details = []
             for i in qsvm_outliers:
-                feats = []
-                for fname in numeric_cols:
-                    val = float(df.iloc[i][fname])
-                    col_vals = df[fname].values
-                    z = float(abs(val-col_vals.mean())/col_vals.std()) if col_vals.std()>0 else 0.0
-                    feats.append({"name":fname,"value":round(val,4),"z_score":round(z,2)})
-                insight = domain_cfg["insight"](feats)
-                q_outlier_details.append({
-                    "idx":i,"label":get_label(i),
-                    "also_classical": i in all_classical,
-                    "features":feats,"insight":insight
-                })
+                feats = get_feats(i)
+                q_outlier_details.append({"idx": i, "label": get_label(i),
+                                           "also_classical": i in all_classical,
+                                           "features": feats, "insight": domain_cfg["insight"](feats)})
 
             quantum = {
                 "qubits": n_components,
-                "variance_retained": round(variance_retained*100,1),
+                "variance_retained": round(variance_retained * 100, 1),
                 "kernel_time_s": q_time,
+                "feature_map": feature_map_type,
+                "reps_used": safe_reps,
+                "sample_size": n_q_samples,
                 "outliers": q_outlier_details,
-                "ranking": [{"rank":r+1,"idx":ranked[r],"label":get_label(ranked[r]),
-                              "avg_similarity":round(float(avg_sim[ranked[r]]),6),
-                              "also_classical":ranked[r] in all_classical}
-                             for r in range(min(10,len(ranked)))],
+                "ranking": [{"rank": r + 1, "idx": ranked[r], "label": get_label(ranked[r]),
+                              "avg_similarity": round(float(avg_sim[ranked_local[r]]), 6),
+                              "also_classical": ranked[r] in all_classical}
+                             for r in range(min(10, len(ranked)))],
                 "quantum_only": qonly_details,
             }
         except Exception as e:
+            traceback.print_exc()
             quantum = {"error": str(e)}
+            emit("progress", {"pct": 96, "label": f"Quantum error: {str(e)[:80]}"})
 
     emit("progress", {"pct": 99, "label": "Finalizing..."})
     emit("result", {
@@ -402,4 +407,3 @@ async def analyze(file: UploadFile = File(...), quantum: bool = True,
         raise HTTPException(500, "Analysis produced no results")
 
     return JSONResponse(collected)
-                      
