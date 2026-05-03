@@ -485,6 +485,16 @@
 
   <!-- Results -->
   <div id="results">
+    <!-- Domain Banner -->
+    <div id="domain-banner" style="display:none;margin-bottom:24px;padding:16px 20px;border-radius:12px;background:var(--surface);border:1px solid rgba(74,240,196,0.25);">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span id="domain-icon" style="font-size:2rem;"></span>
+        <div>
+          <div id="domain-label" style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--q-color);"></div>
+          <div id="domain-desc" style="font-size:0.72rem;color:var(--muted);margin-top:4px;line-height:1.5;"></div>
+        </div>
+      </div>
+    </div>
     <!-- Summary -->
     <div class="section-label">Summary</div>
     <div class="summary-grid">
@@ -625,6 +635,14 @@ function tag(label, isQ) {
 }
 
 function renderResults(data, useQuantum) {
+  // Domain banner
+  if (data.meta && data.meta.domain && data.meta.domain !== 'generic') {
+    const banner = document.getElementById('domain-banner');
+    document.getElementById('domain-icon').textContent = data.meta.domain_icon || '⬡';
+    document.getElementById('domain-label').textContent = (data.meta.domain_icon || '') + '  ' + (data.meta.domain || '').toUpperCase() + ' — ' + (data.meta.domain_label || 'Outlier Detection');
+    document.getElementById('domain-desc').textContent = data.meta.domain_description || '';
+    banner.style.display = 'block';
+  }
   // Summary
   document.getElementById('s-classical').textContent = data.summary.classical_unique ?? '—';
   document.getElementById('s-quantum').textContent = data.summary.quantum_flagged ?? '—';
@@ -712,7 +730,7 @@ function renderResults(data, useQuantum) {
         });
         const note = document.createElement('div');
         note.className = 'qonly-note';
-        note.textContent = 'Each feature looks normal individually — the quantum kernel caught this through inter-feature correlation analysis.';
+        note.textContent = item.insight || 'Each feature looks normal individually — the quantum kernel caught this through inter-feature correlation analysis.';
         card.appendChild(note);
         qonly.appendChild(card);
       });
