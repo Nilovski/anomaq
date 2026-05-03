@@ -722,7 +722,7 @@ dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remov
 fileInput.addEventListener('change',()=>{if(fileInput.files[0])setFile(fileInput.files[0])});
 function setFile(f){selectedFile=f;fileNameEl.textContent=`✓ ${f.name}  (${(f.size/1024).toFixed(1)} KB)`;runBtn.disabled=false}
 
-// RUN
+// RUN — uses SSE streaming to avoid Render's 30s timeout
 runBtn.addEventListener('click',run);
 async function run(){
   if(!selectedFile)return;
@@ -732,21 +732,69 @@ async function run(){
   document.getElementById('err-box').style.display='none';
   const prog=document.getElementById('progress'),fill=document.getElementById('prog-fill'),lbl=document.getElementById('prog-lbl'),pct=document.getElementById('prog-pct');
   prog.style.display='block';
-  const steps=useQ?[[5,'LOADING CSV...'],[20,'CLASSICAL METHODS...'],[50,'BUILDING QUANTUM CIRCUIT...'],[75,'KERNEL MATRIX...'],[90,'FITTING QSVM...'],[99,'FINALIZING...']]:[[10,'LOADING CSV...'],[60,'CLASSICAL METHODS...'],[99,'FINALIZING...']];
-  let si=0;
-  const iv=setInterval(()=>{if(si<steps.length){fill.style.width=steps[si][0]+'%';lbl.textContent=steps[si][1];pct.textContent=steps[si][0]+'%';si++}},useQ?2000:600);
+  fill.style.width='2%';lbl.textContent='UPLOADING...';pct.textContent='2%';
+
+  const form=new FormData();
+  form.append('file',selectedFile);
+  const params=new URLSearchParams({
+    quantum:useQ,
+    feature_map:qConfig.map,
+    entanglement:qConfig.ent,
+    reps:qConfig.reps
+  });
+
   try{
-    const form=new FormData();form.append('file',selectedFile);
-    const res=await fetch(`/analyze?quantum=${useQ}&feature_map=${qConfig.map}&entanglement=${qConfig.ent}&reps=${qConfig.reps}`,{method:'POST',body:form});
-    clearInterval(iv);
-    if(!res.ok){const e=await res.json();throw new Error(e.detail||'Server error')}
-    const data=await res.json();
+    const res=await fetch(`/analyze-stream?${params}`,{method:'POST',body:form});
+    if(!res.ok){
+      const e=await res.json().catch(()=>({detail:'Server error'}));
+      throw new Error(e.detail||'Server error');
+    }
+
+    const reader=res.body.getReader();
+    const decoder=new TextDecoder();
+    let buf='';
+    let resultData=null;
+
+    while(true){
+      const {done,value}=await reader.read();
+      if(done)break;
+      buf+=decoder.decode(value,{stream:true});
+      const msgs=buf.split('\n\n');
+      buf=msgs.pop(); // keep incomplete chunk
+      for(const msg of msgs){
+        if(!msg.trim())continue;
+        const lines=msg.split('\n');
+        let event='',data='';
+        for(const line of lines){
+          if(line.startsWith('event: '))event=line.slice(7).trim();
+          if(line.startsWith('data: '))data=line.slice(6).trim();
+        }
+        if(!data)continue;
+        const parsed=JSON.parse(data);
+        if(event==='progress'){
+          fill.style.width=parsed.pct+'%';
+          lbl.textContent=parsed.label.toUpperCase();
+          pct.textContent=parsed.pct+'%';
+        } else if(event==='result'){
+          resultData=parsed;
+        } else if(event==='error'){
+          throw new Error(parsed.message||'Analysis failed');
+        }
+      }
+    }
+
     fill.style.width='100%';pct.textContent='100%';lbl.textContent='COMPLETE ✓';
     setTimeout(()=>{prog.style.display='none'},700);
-    render(data,useQ);
+    if(resultData)render(resultData,useQ);
+    else throw new Error('No results received from server');
+    runBtn.disabled=false;
+
   }catch(e){
-    clearInterval(iv);prog.style.display='none';
-    const eb=document.getElementById('err-box');eb.textContent='⚠ '+e.message;eb.style.display='block';runBtn.disabled=false;
+    prog.style.display='none';
+    const eb=document.getElementById('err-box');
+    eb.textContent='⚠ '+e.message;
+    eb.style.display='block';
+    runBtn.disabled=false;
   }
 }
 
