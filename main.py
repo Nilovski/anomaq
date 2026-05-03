@@ -142,7 +142,7 @@ def detect_domain(columns):
 def sse(event, data):
     return f"event: {event}\ndata: {json.dumps(data)}\n\n"
 
-def run_detection(df, use_quantum, emit):
+def run_detection(df, use_quantum, emit, feature_map_type="ZZ", entanglement="linear", reps=2):
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     non_numeric = [c for c in df.columns if c not in numeric_cols]
     label_col = non_numeric[0] if non_numeric else None
@@ -214,19 +214,18 @@ def run_detection(df, use_quantum, emit):
 
     # ── Quantum ────────────────────────────────────────────────
     quantum = None
-    QUANTUM_MAX = 80  # max rows for quantum kernel (keeps runtime under ~30s)
+    QUANTUM_MAX = 60  # ~60 rows keeps kernel under 20s on Render free tier
     if use_quantum:
         try:
             emit("progress", {"pct": 62, "label": "Reducing dimensions with PCA..."})
-            from qiskit.circuit.library import ZZFeatureMap
-            from qiskit_machine_learning.kernels import FidelityQuantumKernel
+            from qiskit.circuit.library import ZZFeatureMap, PauliFeatureMap
 
             # Smart sampling for large datasets
             if n_samples > QUANTUM_MAX:
                 sample_idx = np.random.choice(n_samples, QUANTUM_MAX, replace=False)
                 sample_idx = np.sort(sample_idx)
                 X_q_input = X[sample_idx]
-                emit("progress", {"pct": 63, "label": f"Dataset has {n_samples} rows — using {QUANTUM_MAX}-row quantum sample for speed..."})
+                emit("progress", {"pct": 63, "label": f"Dataset has {n_samples} rows — using {QUANTUM_MAX}-row quantum sample..."})
             else:
                 sample_idx = np.arange(n_samples)
                 X_q_input = X
@@ -240,8 +239,13 @@ def run_detection(df, use_quantum, emit):
             q_scaler = MinMaxScaler(feature_range=(0, np.pi))
             X_q = q_scaler.fit_transform(X_pca)
 
-            emit("progress", {"pct": 70, "label": f"Building {n_components}-qubit ZZFeatureMap circuit..."})
-            feature_map = ZZFeatureMap(feature_dimension=n_components, reps=2, entanglement='linear')
+            emit("progress", {"pct": 70, "label": f"Building {n_components}-qubit {feature_map_type}FeatureMap (reps={reps}, {entanglement})..."})
+            if feature_map_type == "Pauli":
+                from qiskit.circuit.library import PauliFeatureMap
+                feature_map = PauliFeatureMap(feature_dimension=n_components, reps=reps, entanglement=entanglement)
+            else:
+                feature_map = ZZFeatureMap(feature_dimension=n_components, reps=reps, entanglement=entanglement)
+            from qiskit_machine_learning.kernels import FidelityQuantumKernel
             qk = FidelityQuantumKernel(feature_map=feature_map)
 
             emit("progress", {"pct": 76, "label": f"Computing quantum kernel matrix ({n_q_samples}×{n_q_samples} pairs)..."})
@@ -325,7 +329,8 @@ def run_detection(df, use_quantum, emit):
 
 
 @app.post("/analyze-stream")
-async def analyze_stream(file: UploadFile = File(...), quantum: bool = True):
+async def analyze_stream(file: UploadFile = File(...), quantum: bool = True,
+                         feature_map: str = "ZZ", entanglement: str = "linear", reps: int = 2):
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(400, "Please upload a .csv file.")
     contents = await file.read()
@@ -340,7 +345,7 @@ async def analyze_stream(file: UploadFile = File(...), quantum: bool = True):
     async def run_bg():
         loop = asyncio.get_event_loop()
         try:
-            await loop.run_in_executor(executor, run_detection, df, quantum, emit)
+            await loop.run_in_executor(executor, run_detection, df, quantum, emit, feature_map, entanglement, reps)
         except Exception as e:
             queue.put_nowait(sse("error", {"message": str(e)}))
         finally:
@@ -364,7 +369,8 @@ async def root():
 
 
 @app.post("/analyze")
-async def analyze(file: UploadFile = File(...), quantum: bool = True):
+async def analyze(file: UploadFile = File(...), quantum: bool = True,
+                  feature_map: str = "ZZ", entanglement: str = "linear", reps: int = 2):
     """Synchronous endpoint for frontends that don't use SSE streaming."""
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(400, "Please upload a .csv file.")
@@ -385,7 +391,7 @@ async def analyze(file: UploadFile = File(...), quantum: bool = True):
 
     try:
         loop = asyncio.get_event_loop()
-        await loop.run_in_executor(executor, run_detection, df, quantum, emit)
+        await loop.run_in_executor(executor, run_detection, df, quantum, emit, feature_map, entanglement, reps)
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(500, str(e))
@@ -396,3 +402,4 @@ async def analyze(file: UploadFile = File(...), quantum: bool = True):
         raise HTTPException(500, "Analysis produced no results")
 
     return JSONResponse(collected)
+                      
