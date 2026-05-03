@@ -3,1077 +3,726 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sahpar Ozer — Mechanical Engineer & Researcher</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>AnomaQ — Quantum Outlier Detection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #050810;
+    --surface: #0c1020;
+    --surface2: #111828;
+    --border: rgba(100,180,255,0.12);
+    --q-color: #4af0c4;
+    --c-color: #f0a84a;
+    --danger: #f05a4a;
+    --text: #d8e8ff;
+    --muted: #6a7a9a;
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
 
-:root {
-  --white:   #ffffff;
-  --lilac:   #b084cc;
-  --lilac-light: #d4b0e8;
-  --lilac-pale:  #f0e4f8;
-  --lilac-deep:  #7c4fa0;
-  --lilac-dark:  #3d1f5c;
-  --lavender:#e8d5f5;
-  --ink:     #1a0a2e;
-  --mist:    #f7f0fc;
-  --mid:     #9b6bbf;
-  --display: 'Bebas Neue', sans-serif;
-  --body:    'Space Grotesk', sans-serif;
-  --mono:    'IBM Plex Mono', monospace;
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
-body { background: var(--mist); color: var(--ink); font-family: var(--body); overflow-x: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-/* ── NAV ─── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 3rem;
-  height: 64px;
-  background: var(--lilac-dark);
-  border-bottom: 3px solid var(--lilac);
-}
-.nav-logo {
-  font-family: var(--display);
-  font-size: 1.6rem;
-  color: var(--lilac-light);
-  text-decoration: none;
-  letter-spacing: 0.05em;
-}
-.nav-links { display: flex; gap: 0; list-style: none; height: 100%; }
-.nav-links li { height: 100%; }
-.nav-links a {
-  display: flex; align-items: center;
-  height: 100%;
-  padding: 0 1.4rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  color: #c9a8e0;
-  text-decoration: none;
-  text-transform: uppercase;
-  border-left: 1px solid rgba(176,132,204,0.2);
-  transition: background 0.2s, color 0.2s;
-}
-.nav-links a:hover { background: var(--lilac); color: white; }
+  /* Grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(74,240,196,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,240,196,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-/* ── HERO ─── */
-#hero {
-  min-height: 100vh;
-  padding-top: 64px;
-  display: grid;
-  grid-template-columns: 1fr 420px;
-  grid-template-rows: 1fr auto;
-}
-.hero-left {
-  background: var(--lilac-dark);
-  padding: 5rem 4rem 4rem;
-  display: flex; flex-direction: column; justify-content: flex-end;
-  position: relative;
-  overflow: hidden;
-}
-.hero-left::before {
-  content: '';
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(176,132,204,0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(176,132,204,0.08) 1px, transparent 1px);
-  background-size: 60px 60px;
-}
-.hero-eyebrow {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--lilac-light);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 1.5rem;
-  position: relative;
-  display: flex; align-items: center; gap: 0.75rem;
-}
-.hero-eyebrow::before {
-  content: '';
-  display: inline-block;
-  width: 2rem; height: 2px;
-  background: var(--lilac);
-}
-h1 {
-  font-family: var(--display);
-  font-size: clamp(5rem, 12vw, 11rem);
-  line-height: 0.88;
-  letter-spacing: 0.02em;
-  color: var(--white);
-  position: relative;
-  margin-bottom: 2.5rem;
-}
-h1 span { color: var(--lilac-light); display: block; }
-.hero-desc {
-  font-size: 1rem;
-  color: #c9a8e0;
-  max-width: 440px;
-  line-height: 1.7;
-  position: relative;
-  margin-bottom: 3rem;
-}
-.hero-ctas { display: flex; gap: 1rem; position: relative; }
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 { width: 400px; height: 400px; background: rgba(74,240,196,0.06); top: -100px; right: -100px; }
+  .orb-2 { width: 300px; height: 300px; background: rgba(100,120,255,0.08); bottom: 100px; left: -80px; }
 
-.btn {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  padding: 0.85rem 2rem;
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
-  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-}
-.btn-primary { background: var(--lilac); color: white; }
-.btn-primary:hover { background: var(--mid); transform: translateY(-2px); }
-.btn-secondary { background: var(--lilac-light); color: var(--ink); }
-.btn-secondary:hover { background: #e8c8f8; transform: translateY(-2px); }
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
 
-.hero-right {
-  background: var(--lilac);
-  display: flex; flex-direction: column; justify-content: flex-end;
-  padding: 3rem;
-  position: relative;
-  overflow: hidden;
-}
-.hero-right::before {
-  content: 'ENGI\ANEER';
-  white-space: pre;
-  font-family: var(--display);
-  font-size: 9rem;
-  line-height: 0.85;
-  color: rgba(255,255,255,0.08);
-  position: absolute;
-  top: 2rem; left: -1rem;
-  letter-spacing: 0.02em;
-}
-.stat-stack { display: flex; flex-direction: column; gap: 1px; }
-.stat-block {
-  background: rgba(255,255,255,0.12);
-  padding: 1.25rem 1.5rem;
-  display: flex; align-items: baseline; gap: 1rem;
-  transition: background 0.2s;
-}
-.stat-block:hover { background: rgba(255,255,255,0.22); }
-.stat-num {
-  font-family: var(--display);
-  font-size: 3.5rem;
-  color: var(--white);
-  line-height: 1;
-  letter-spacing: 0.02em;
-}
-.stat-txt {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: rgba(255,255,255,0.75);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  line-height: 1.4;
-}
-.hero-bottom {
-  grid-column: 1 / -1;
-  background: var(--lilac-light);
-  padding: 1rem 4rem;
-  display: flex; gap: 4rem; align-items: center;
-  overflow: hidden;
-}
-.ticker-item {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--lilac-dark);
-  white-space: nowrap;
-  display: flex; align-items: center; gap: 1rem;
-}
-.ticker-item::before { content: '◆'; font-size: 0.5rem; color: var(--lilac-deep); }
+  /* Header */
+  header {
+    margin-bottom: 56px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+  }
 
-/* ── SECTION SHARED ─── */
-section { padding: 6rem 4rem; }
-.section-tag {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  display: flex; align-items: center; gap: 0.75rem;
-  margin-bottom: 1.25rem;
-  color: var(--lilac-deep);
-}
-.section-tag::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  max-width: 120px;
-  background: currentColor;
-  opacity: 0.3;
-}
-h2 {
-  font-family: var(--display);
-  font-size: clamp(2.5rem, 6vw, 5rem);
-  letter-spacing: 0.03em;
-  line-height: 0.92;
-  margin-bottom: 3.5rem;
-}
+  .logo-mark {
+    width: 48px; height: 48px;
+    border: 2px solid var(--q-color);
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .logo-mark::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: conic-gradient(from 0deg, var(--q-color), #4a80f0, var(--q-color));
+    border-radius: 6px;
+    animation: spin 4s linear infinite;
+    opacity: 0.6;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── ABOUT ─── */
-#about { background: var(--mist); }
-.about-layout {
-  display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 5rem;
-  align-items: start;
-}
-.about-copy p {
-  font-size: 1.05rem;
-  line-height: 1.8;
-  color: #4a3060;
-  margin-bottom: 1.25rem;
-}
-.about-copy p strong { color: var(--ink); }
-.discipline-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--lilac);
-  border: 1px solid var(--lilac);
-  margin-top: 2rem;
-}
-.discipline-cell {
-  background: var(--white);
-  padding: 1.1rem 1.25rem;
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  color: #6b4a88;
-  transition: background 0.2s, color 0.2s;
-}
-.discipline-cell:hover { background: var(--lilac-dark); color: var(--lilac-light); }
-.discipline-cell strong { display: block; color: var(--ink); font-weight: 500; font-family: var(--body); font-size: 0.9rem; margin-bottom: 0.2rem; }
-.discipline-cell:hover strong { color: var(--lilac-light); }
+  h1 {
+    font-family: var(--font-head);
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    background: linear-gradient(120deg, var(--q-color), #80b0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .tagline {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
 
-.profile-card {
-  background: var(--lilac-dark);
-  padding: 2rem;
-  position: relative;
-}
-.profile-card::before {
-  content: '';
-  position: absolute;
-  top: -6px; right: -6px;
-  width: 100%; height: 100%;
-  border: 2px solid var(--lilac);
-  z-index: -1;
-}
-.profile-avatar {
-  width: 100%; aspect-ratio: 1;
-  background: var(--lilac-deep);
-  margin-bottom: 1.5rem;
-  display: flex; align-items: center; justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-.avatar-initials {
-  font-family: var(--display);
-  font-size: 6rem;
-  color: var(--lilac-light);
-  opacity: 0.4;
-}
-.profile-name {
-  font-family: var(--display);
-  font-size: 2rem;
-  color: var(--white);
-  letter-spacing: 0.04em;
-  margin-bottom: 0.25rem;
-}
-.profile-title {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--lilac-light);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 1.25rem;
-}
-.profile-detail {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  color: #c9a8e0;
-  line-height: 2;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding-top: 1rem;
-}
-.profile-detail span { color: var(--white); }
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 56px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+  }
+  .upload-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(74,240,196,0.05) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--q-color);
+    background: var(--surface2);
+  }
+  .upload-zone:hover::before, .upload-zone.drag-over::before { opacity: 1; }
 
-/* ── PROJECTS ─── */
-#projects { background: var(--lavender); }
-.projects-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 3rem; }
-.projects-header h2 { margin-bottom: 0; }
-.view-all {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  color: var(--lilac-deep);
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-bottom: 1px solid var(--lilac-deep);
-  padding-bottom: 2px;
-}
+  .upload-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 16px;
+    filter: grayscale(0.3);
+  }
+  .upload-title {
+    font-family: var(--font-head);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .upload-sub { font-size: 0.72rem; color: var(--muted); }
 
-.projects-masonry {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 1rem;
-}
-.proj { background: white; overflow: hidden; transition: transform 0.25s; cursor: pointer; }
-.proj:hover { transform: translateY(-4px); }
-.proj:nth-child(1) { grid-column: 1 / 8; }
-.proj:nth-child(2) { grid-column: 8 / 13; }
-.proj:nth-child(3) { grid-column: 1 / 5; }
-.proj:nth-child(4) { grid-column: 5 / 9; }
-.proj:nth-child(5) { grid-column: 9 / 13; }
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 
-.proj-thumb {
-  height: 180px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--display);
-  font-size: 5rem;
-  letter-spacing: 0.02em;
-  position: relative;
-  overflow: hidden;
-}
-.proj:nth-child(1) .proj-thumb { background: var(--lilac-dark); color: var(--lilac-light); }
-.proj:nth-child(2) .proj-thumb { background: var(--lilac); color: var(--white); }
-.proj:nth-child(3) .proj-thumb { background: var(--lilac-light); color: var(--lilac-dark); }
-.proj:nth-child(4) .proj-thumb { background: var(--ink); color: var(--lilac-light); }
-.proj:nth-child(5) .proj-thumb { background: var(--mid); color: white; }
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .btn-primary {
+    background: var(--q-color);
+    color: #050810;
+  }
+  .btn-primary:hover { background: #6af8d4; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: default; transform: none; }
 
-.proj-thumb-label {
-  position: absolute;
-  bottom: 0.75rem; right: 1rem;
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-.proj-body { padding: 1.5rem; }
-.proj-num {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: #aaa;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.5rem;
-}
-.proj-title {
-  font-family: var(--display);
-  font-size: 1.5rem;
-  letter-spacing: 0.03em;
-  color: var(--ink);
-  line-height: 1.1;
-  margin-bottom: 0.6rem;
-}
-.proj-desc {
-  font-size: 0.85rem;
-  color: #666;
-  line-height: 1.65;
-  margin-bottom: 1rem;
-}
-.proj-meta {
-  display: flex; align-items: center; justify-content: space-between;
-  padding-top: 1rem;
-  border-top: 1px solid #eee;
-}
-.proj-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
-.proj-tag {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  padding: 0.2rem 0.5rem;
-  border: 1px solid var(--lilac-light);
-  color: var(--lilac-deep);
-}
-.proj-link {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--lilac-deep);
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-}
+  .toggle-q {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle-q input { display: none; }
+  .toggle-track {
+    width: 36px; height: 20px;
+    background: var(--surface2);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    position: relative;
+    transition: background 0.2s;
+  }
+  .toggle-track::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--muted);
+    top: 2px; left: 2px;
+    transition: all 0.2s;
+  }
+  .toggle-q input:checked + .toggle-track { background: rgba(74,240,196,0.2); border-color: var(--q-color); }
+  .toggle-q input:checked + .toggle-track::after { left: 18px; background: var(--q-color); }
 
-/* ── EXPERIENCE ─── */
-#experience { background: var(--lilac-dark); }
-#experience .section-tag { color: var(--lilac-light); }
-#experience h2 { color: var(--white); }
+  /* Progress */
+  #progress {
+    display: none;
+    margin-top: 32px;
+    padding: 24px;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .progress-label {
+    font-size: 0.72rem;
+    color: var(--q-color);
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .progress-bar-wrap {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--q-color), #4a80f0);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.4s;
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.3); }
+    100% { filter: brightness(1); }
+  }
 
-.exp-timeline {
-  position: relative;
-  padding-left: 2rem;
-}
-.exp-timeline::before {
-  content: '';
-  position: absolute; left: 0; top: 0; bottom: 0;
-  width: 2px;
-  background: repeating-linear-gradient(
-    to bottom, var(--lilac-light) 0px, var(--lilac-light) 12px, transparent 12px, transparent 20px
-  );
-}
-.exp-entry {
-  position: relative;
-  padding: 0 0 3.5rem 3rem;
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 3rem;
-}
-.exp-entry:last-child { padding-bottom: 0; }
-.exp-entry::before {
-  content: '';
-  position: absolute; left: -7px; top: 6px;
-  width: 16px; height: 16px;
-  background: var(--lilac);
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-}
-.exp-when {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--lilac-light);
-  letter-spacing: 0.06em;
-  padding-top: 0.15rem;
-}
-.exp-company-name {
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  color: var(--lilac-light);
-  margin-top: 0.35rem;
-  letter-spacing: 0.04em;
-}
-.exp-role-title {
-  font-family: var(--display);
-  font-size: 1.5rem;
-  color: var(--white);
-  letter-spacing: 0.04em;
-  margin-bottom: 0.75rem;
-}
-.exp-bullets { list-style: none; }
-.exp-bullets li {
-  font-size: 0.9rem;
-  color: #c9a8e0;
-  line-height: 1.65;
-  padding-left: 1.2rem;
-  position: relative;
-  margin-bottom: 0.4rem;
-}
-.exp-bullets li::before {
-  content: '▸';
-  position: absolute; left: 0;
-  color: var(--lilac-light);
-  font-size: 0.75rem;
-}
-.exp-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
-.exp-badge {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  padding: 0.2rem 0.6rem;
-  background: rgba(255,255,255,0.07);
-  color: var(--lilac-light);
-  border: 1px solid rgba(176,132,204,0.3);
-  letter-spacing: 0.06em;
-}
+  /* Results */
+  #results { display: none; margin-top: 48px; }
 
-/* ── CONTACT ─── */
-#contact { background: var(--mist); }
-.contact-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  align-items: start;
-}
-.contact-panel-left {
-  background: var(--lilac-dark);
-  padding: 3.5rem;
-  position: relative;
-  overflow: hidden;
-  min-height: 580px;
-  display: flex; flex-direction: column; justify-content: flex-end;
-}
-.contact-panel-left::before {
-  content: 'LETS\ATALK';
-  white-space: pre;
-  font-family: var(--display);
-  font-size: 13rem;
-  line-height: 0.82;
-  color: rgba(255,255,255,0.04);
-  position: absolute;
-  top: 1.5rem; left: 2rem;
-  letter-spacing: 0.02em;
-  pointer-events: none;
-}
-.contact-panel-left h2 { color: var(--white); margin-bottom: 1rem; font-size: 3.5rem; }
-.contact-panel-left p { color: #c9a8e0; font-size: 0.95rem; line-height: 1.7; margin-bottom: 2.5rem; }
-.contact-links { display: flex; flex-direction: column; gap: 0.75rem; }
-.contact-link-row {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: rgba(255,255,255,0.04);
-  border-left: 3px solid transparent;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-.contact-link-row:hover { background: rgba(255,255,255,0.08); border-left-color: var(--lilac); }
-.contact-link-icon {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--lilac-light);
-  width: 28px;
-  text-align: center;
-}
-.contact-link-text {
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  color: #c9a8e0;
-}
-.contact-link-row:hover .contact-link-text { color: var(--white); }
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
 
-.contact-panel-right {
-  background: var(--lilac);
-  padding: 3.5rem;
-}
-.contact-panel-right h3 {
-  font-family: var(--display);
-  font-size: 2rem;
-  color: white;
-  letter-spacing: 0.04em;
-  margin-bottom: 2rem;
-}
-.field-group { margin-bottom: 1.25rem; }
-.field-label {
-  display: block;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.5rem;
-}
-.field-input, .field-textarea {
-  width: 100%;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.25);
-  padding: 0.85rem 1rem;
-  color: white;
-  font-family: var(--body);
-  font-size: 0.92rem;
-  outline: none;
-  border-radius: 0;
-  transition: background 0.2s, border-color 0.2s;
-}
-.field-input::placeholder, .field-textarea::placeholder { color: rgba(255,255,255,0.4); }
-.field-input:focus, .field-textarea:focus {
-  background: rgba(255,255,255,0.22);
-  border-color: var(--lilac-light);
-}
-.field-textarea { min-height: 130px; resize: vertical; }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-.submit-btn {
-  width: 100%; margin-top: 0.5rem;
-  background: var(--lilac-dark);
-  color: var(--white);
-  border: none;
-  padding: 1rem;
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-  transition: background 0.2s, transform 0.15s;
-}
-.submit-btn:hover { background: var(--lilac-deep); transform: translateY(-1px); }
+  /* Summary cards */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  @media (max-width: 600px) { .summary-grid { grid-template-columns: 1fr; } }
 
-/* ── FOOTER ─── */
-footer {
-  background: var(--lilac-dark);
-  border-top: 3px solid var(--lilac);
-  padding: 1.75rem 4rem;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.foot-logo {
-  font-family: var(--display);
-  font-size: 1.4rem;
-  color: var(--lilac-light);
-  letter-spacing: 0.05em;
-}
-.foot-copy {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  color: #9b6bbf;
-  letter-spacing: 0.06em;
-}
-.foot-links { display: flex; gap: 2rem; }
-.foot-links a {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  color: #9b6bbf;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  transition: color 0.2s;
-}
-.foot-links a:hover { color: var(--lilac-light); }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stat-card.classical::before { background: var(--c-color); }
+  .stat-card.quantum::before { background: var(--q-color); }
+  .stat-card.unique::before { background: var(--danger); }
 
-/* ── RESPONSIVE ─── */
-@media (max-width: 960px) {
-  nav { padding: 0 1.5rem; }
-  .nav-links { display: none; }
-  #hero { grid-template-columns: 1fr; }
-  .hero-right { display: none; }
-  .hero-bottom { flex-direction: column; gap: 0.5rem; padding: 1rem 1.5rem; }
-  section { padding: 4rem 1.5rem; }
-  .about-layout { grid-template-columns: 1fr; }
-  .projects-masonry { grid-template-columns: 1fr; }
-  .proj { grid-column: 1 / -1 !important; }
-  .exp-entry { grid-template-columns: 1fr; gap: 0.5rem; }
-  .contact-layout { grid-template-columns: 1fr; }
-  footer { flex-direction: column; gap: 1rem; text-align: center; }
-}
+  .stat-num {
+    font-family: var(--font-head);
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card.classical .stat-num { color: var(--c-color); }
+  .stat-card.quantum .stat-num { color: var(--q-color); }
+  .stat-card.unique .stat-num { color: var(--danger); }
+  .stat-lbl { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* Method results */
+  .methods-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  @media (max-width: 600px) { .methods-grid { grid-template-columns: 1fr; } }
+
+  .method-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .method-name {
+    font-size: 0.68rem;
+    color: var(--c-color);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .outlier-tag {
+    display: inline-block;
+    background: rgba(240,168,74,0.12);
+    border: 1px solid rgba(240,168,74,0.25);
+    color: var(--c-color);
+    font-size: 0.68rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin: 2px;
+  }
+  .outlier-tag.q-tag {
+    background: rgba(74,240,196,0.1);
+    border-color: rgba(74,240,196,0.25);
+    color: var(--q-color);
+  }
+  .none-tag { font-size: 0.68rem; color: var(--muted); font-style: italic; }
+
+  /* Quantum section */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid rgba(74,240,196,0.2);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 12px;
+  }
+  .q-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .q-meta-item { font-size: 0.68rem; }
+  .q-meta-item span { color: var(--muted); display: block; margin-bottom: 2px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .q-meta-item strong { color: var(--q-color); }
+
+  /* Ranking table */
+  .ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.72rem;
+    margin-bottom: 24px;
+  }
+  .ranking-table th {
+    text-align: left;
+    color: var(--muted);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ranking-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .ranking-table tr:hover td { background: rgba(74,240,196,0.03); }
+  .rank-num { color: var(--muted); }
+  .rank-label { color: var(--text); }
+  .rank-sim { color: var(--q-color); font-weight: 700; }
+  .also-flag {
+    font-size: 0.6rem;
+    background: rgba(240,168,74,0.15);
+    color: var(--c-color);
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-left: 6px;
+  }
+
+  /* Quantum-only */
+  .qonly-card {
+    background: rgba(74,240,196,0.05);
+    border: 1px solid rgba(74,240,196,0.2);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .qonly-label {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--q-color);
+    margin-bottom: 10px;
+  }
+  .feature-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.66rem;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .feature-name { color: var(--muted); }
+  .feature-val { color: var(--text); }
+  .feature-z { color: var(--q-color); margin-left: 12px; }
+  .qonly-note {
+    margin-top: 10px;
+    font-size: 0.65rem;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* Error */
+  .error-box {
+    background: rgba(240,90,74,0.1);
+    border: 1px solid rgba(240,90,74,0.3);
+    border-radius: 10px;
+    padding: 20px;
+    color: var(--danger);
+    font-size: 0.75rem;
+    margin-top: 20px;
+  }
+
+  #file-name {
+    font-size: 0.7rem;
+    color: var(--q-color);
+    margin-top: 10px;
+    min-height: 18px;
+  }
 </style>
 </head>
 <body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
 
-<!-- NAV -->
-<nav>
-  <a href="#hero" class="nav-logo">SO / ENG</a>
-  <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="#projects">Projects</a></li>
-    <li><a href="#experience">Experience</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
-</nav>
-
-<!-- HERO -->
-<section id="hero">
-  <div class="hero-left">
-    <p class="hero-eyebrow">Mechanical Engineer & Researcher · Vanderbilt University</p>
-    <h1>SAHPAR<span>OZER.</span></h1>
-    <p class="hero-desc">
-      Mechanical Engineering & Economics student at Vanderbilt University with hands-on research in
-      nanoscience, astrophysics, and microfabrication. Based in Nashville, TN.
-      Cornelius Vanderbilt Merit Scholar.
-    </p>
-    <div class="hero-ctas">
-      <a href="#projects" class="btn btn-primary">See projects</a>
-      <a href="#contact" class="btn btn-secondary">Get in touch</a>
+<div class="wrap">
+  <header>
+    <div class="logo-mark"></div>
+    <div>
+      <h1>AnomaQ</h1>
+      <div class="tagline">Quantum vs Classical Outlier Detection</div>
     </div>
-  </div>
-  <div class="hero-right">
-    <div class="stat-stack">
-      <div class="stat-block">
-        <div class="stat-num">3.2</div>
-        <div class="stat-txt">GPA at<br>Vanderbilt</div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-num">5+</div>
-        <div class="stat-txt">Research<br>positions</div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-num">250</div>
-        <div class="stat-txt">BPT diagrams<br>created</div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-num">1st</div>
-        <div class="stat-txt">NASA SpaceApps<br>Turkey winner</div>
-      </div>
-    </div>
-  </div>
-  <div class="hero-bottom">
-    <div class="ticker-item">Nanoscale Engineering</div>
-    <div class="ticker-item">Astrophysics Research</div>
-    <div class="ticker-item">Microfabrication</div>
-    <div class="ticker-item">Python · C++ · CAD</div>
-    <div class="ticker-item">Motorsports Design</div>
-    <div class="ticker-item">NASA SpaceApps Global Finalist</div>
-  </div>
-</section>
+  </header>
 
-<!-- ABOUT -->
-<section id="about">
-  <div class="section-tag">01 — About me</div>
-  <div class="about-layout">
-    <div class="about-copy">
-      <h2>BUILT ON<br>CURIOSITY</h2>
-      <p>
-        I'm a <strong>Mechanical Engineering & Economics</strong> student at Vanderbilt University,
-        pursuing a Minor in Nanoscience and Nanotechnology. A Cornelius Vanderbilt Merit Scholar,
-        I bring both analytical rigor and creative problem-solving to every project.
-      </p>
-      <p>
-        My research spans from <strong>graphene CVD growth</strong> and tissue microfabrication
-        at Vanderbilt's nanoscale labs, to <strong>ionized gas kinematics</strong> in distant galaxies
-        at UC Santa Cruz, to exoplanet discovery at George Mason University.
-      </p>
-      <p>
-        I believe engineering and science are most powerful when they intersect disciplines —
-        whether that's applying mesh optimization to aerospace, or combining economics with
-        mechanical design to solve real-world challenges.
-      </p>
-      <div class="discipline-grid">
-        <div class="discipline-cell"><strong>Nanoscale Engineering</strong>CVD growth, graphene devices</div>
-        <div class="discipline-cell"><strong>Astrophysics</strong>BPT diagrams, exoplanet research</div>
-        <div class="discipline-cell"><strong>Microfabrication</strong>Tissue engineering, vascularization</div>
-        <div class="discipline-cell"><strong>Aerospace Optimization</strong>Mesh algorithms, Halton sequences</div>
-        <div class="discipline-cell"><strong>CAD / CAE Design</strong>Motorsports & race car components</div>
-        <div class="discipline-cell"><strong>Data Science</strong>Python, Jupyter, C++, Dart Flutter</div>
+  <!-- Upload -->
+  <div class="upload-zone" id="drop-zone">
+    <span class="upload-icon">⬡</span>
+    <div class="upload-title">Drop your CSV here</div>
+    <div class="upload-sub">or click to browse — numeric columns are auto-detected</div>
+    <div id="file-name"></div>
+    <input type="file" id="file-input" accept=".csv" style="display:none">
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="run-btn" disabled>Run Analysis</button>
+    <label class="toggle-q" title="Quantum adds ~5-30s depending on feature count">
+      <input type="checkbox" id="use-quantum" checked>
+      <div class="toggle-track"></div>
+      Include Quantum Kernel
+    </label>
+  </div>
+
+  <div id="progress">
+    <div class="progress-label" id="progress-label">INITIALIZING...</div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  </div>
+
+  <div id="error-box" class="error-box" style="display:none"></div>
+
+  <!-- Results -->
+  <div id="results">
+    <!-- Summary -->
+    <div class="section-label">Summary</div>
+    <div class="summary-grid">
+      <div class="stat-card classical">
+        <div class="stat-num" id="s-classical">—</div>
+        <div class="stat-lbl">Classical flagged</div>
+      </div>
+      <div class="stat-card quantum">
+        <div class="stat-num" id="s-quantum">—</div>
+        <div class="stat-lbl">Quantum flagged</div>
+      </div>
+      <div class="stat-card unique">
+        <div class="stat-num" id="s-qonly">—</div>
+        <div class="stat-lbl">Quantum-only</div>
       </div>
     </div>
-    <div class="profile-card">
-      <div class="profile-avatar">
-        <div class="avatar-initials">SO</div>
-      </div>
-      <div class="profile-name">SAHPAR OZER</div>
-      <div class="profile-title">BE Mechanical Engineering & Economics</div>
-      <div class="profile-detail">
-        Based in <span>Nashville, TN</span><br>
-        University <span>Vanderbilt, Class of 2028</span><br>
-        Languages <span>English · Turkish · German</span><br>
-        Clubs <span>Delta Sigma Pi · Motorsports</span><br>
-        Open to <span>Research & internship roles</span>
+
+    <!-- Classical methods -->
+    <div class="section-label">Classical Methods</div>
+    <div class="methods-grid" id="methods-grid"></div>
+
+    <!-- Quantum -->
+    <div id="quantum-section">
+      <div class="section-label">Quantum Kernel (ZZFeatureMap)</div>
+      <div class="q-card">
+        <div class="q-meta" id="q-meta"></div>
+        <table class="ranking-table" id="ranking-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Entity</th><th>Avg Similarity</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="ranking-body"></tbody>
+        </table>
+        <div id="qonly-section"></div>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- PROJECTS -->
-<section id="projects">
-  <div class="section-tag">02 — Projects</div>
-  <div class="projects-header">
-    <h2>SELECTED<br>WORK</h2>
-    <a href="#" class="view-all">Full portfolio ↗</a>
-  </div>
-  <div class="projects-masonry">
+<script>
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const runBtn = document.getElementById('run-btn');
+const fileNameEl = document.getElementById('file-name');
+const progressEl = document.getElementById('progress');
+const progressBar = document.getElementById('progress-bar');
+const progressLabel = document.getElementById('progress-label');
+const resultsEl = document.getElementById('results');
+const errorBox = document.getElementById('error-box');
 
-    <div class="proj">
-      <div class="proj-thumb">
-        NANO
-        <div class="proj-thumb-label">Nanoscience / 2024–Present</div>
-      </div>
-      <div class="proj-body">
-        <div class="proj-num">Project 01</div>
-        <div class="proj-title">Graphene Device Development at VINSE</div>
-        <p class="proj-desc">
-          Developed reusable graphene devices through CVD growth recipes and simple circuit designs
-          at the Vanderbilt Institute of Nanoscale Science and Engineering, enhancing accessibility
-          for students and researchers.
-        </p>
-        <div class="proj-meta">
-          <div class="proj-tags">
-            <span class="proj-tag">CVD Growth</span>
-            <span class="proj-tag">Graphene</span>
-            <span class="proj-tag">Nanofabrication</span>
-          </div>
-          <a href="#" class="proj-link">View ↗</a>
-        </div>
-      </div>
-    </div>
+let selectedFile = null;
 
-    <div class="proj">
-      <div class="proj-thumb">
-        BPT
-        <div class="proj-thumb-label">Astrophysics / 2022–2024</div>
-      </div>
-      <div class="proj-body">
-        <div class="proj-num">Project 02</div>
-        <div class="proj-title">Ionized Gas Kinematics — M33 & Andromeda</div>
-        <p class="proj-desc">
-          Created 250 BPT diagrams using Python and Jupyter Notebooks to analyze star-forming
-          regions in M33 and Andromeda Galaxies at UC Santa Cruz.
-        </p>
-        <div class="proj-meta">
-          <div class="proj-tags">
-            <span class="proj-tag">Python</span>
-            <span class="proj-tag">Astrophysics</span>
-          </div>
-          <a href="#" class="proj-link">View ↗</a>
-        </div>
-      </div>
-    </div>
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.name.endsWith('.csv')) setFile(f);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
 
-    <div class="proj">
-      <div class="proj-thumb">
-        VASC
-        <div class="proj-thumb-label">Bioengineering / 2024–Present</div>
-      </div>
-      <div class="proj-body">
-        <div class="proj-num">Project 03</div>
-        <div class="proj-title">Microfabrication for Engineered Tissues</div>
-        <p class="proj-desc">
-          Investigating advanced microfabrication techniques and mechanical stimulation to guide
-          vascularization in engineered tissues at Bellan Lab for Advanced Materials.
-        </p>
-        <div class="proj-meta">
-          <div class="proj-tags">
-            <span class="proj-tag">Microfab</span>
-            <span class="proj-tag">Tissue Eng.</span>
-          </div>
-          <a href="#" class="proj-link">View ↗</a>
-        </div>
-      </div>
-    </div>
+function setFile(f) {
+  selectedFile = f;
+  fileNameEl.textContent = `✓ ${f.name}  (${(f.size/1024).toFixed(1)} KB)`;
+  runBtn.disabled = false;
+}
 
-    <div class="proj">
-      <div class="proj-thumb">
-        MESH
-        <div class="proj-thumb-label">Aerospace / 2022</div>
-      </div>
-      <div class="proj-body">
-        <div class="proj-num">Project 04</div>
-        <div class="proj-title">Aerospace Mesh Optimization — ITU</div>
-        <p class="proj-desc">
-          Gained experience in 4 mesh generation algorithms and optimization using Halton sequences
-          at ITU Aerospace Optimization Lab, improving computational efficiency and accuracy.
-        </p>
-        <div class="proj-meta">
-          <div class="proj-tags">
-            <span class="proj-tag">Python</span>
-            <span class="proj-tag">CAD/CAE</span>
-          </div>
-          <a href="#" class="proj-link">View ↗</a>
-        </div>
-      </div>
-    </div>
+runBtn.addEventListener('click', runAnalysis);
 
-    <div class="proj">
-      <div class="proj-thumb">
-        RACE
-        <div class="proj-thumb-label">Motorsports / 2024–Present</div>
-      </div>
-      <div class="proj-body">
-        <div class="proj-num">Project 05</div>
-        <div class="proj-title">Vanderbilt Motorsports Race Car Design</div>
-        <p class="proj-desc">
-          Contributing to design, fabrication, and optimization of race cars using CAD, applying
-          F1 engineering principles to improve performance, safety, and efficiency.
-        </p>
-        <div class="proj-meta">
-          <div class="proj-tags">
-            <span class="proj-tag">CAD</span>
-            <span class="proj-tag">Fabrication</span>
-          </div>
-          <a href="#" class="proj-link">View ↗</a>
-        </div>
-      </div>
-    </div>
+async function runAnalysis() {
+  if (!selectedFile) return;
+  const useQuantum = document.getElementById('use-quantum').checked;
 
-  </div>
-</section>
+  runBtn.disabled = true;
+  resultsEl.style.display = 'none';
+  errorBox.style.display = 'none';
+  progressEl.style.display = 'block';
 
-<!-- EXPERIENCE -->
-<section id="experience">
-  <div class="section-tag">03 — Experience</div>
-  <h2>WHERE I'VE<br>BUILT THINGS</h2>
+  const steps = useQuantum
+    ? [
+        [5, 'LOADING CSV...'],
+        [20, 'RUNNING CLASSICAL METHODS...'],
+        [50, 'BUILDING QUANTUM CIRCUIT...'],
+        [75, 'COMPUTING KERNEL MATRIX...'],
+        [90, 'FITTING QUANTUM SVM...'],
+        [99, 'FINALIZING...'],
+      ]
+    : [
+        [10, 'LOADING CSV...'],
+        [60, 'RUNNING CLASSICAL METHODS...'],
+        [99, 'FINALIZING...'],
+      ];
 
-  <div class="exp-timeline">
+  let stepIdx = 0;
+  const interval = setInterval(() => {
+    if (stepIdx < steps.length) {
+      progressBar.style.width = steps[stepIdx][0] + '%';
+      progressLabel.textContent = steps[stepIdx][1];
+      stepIdx++;
+    }
+  }, useQuantum ? 2000 : 600);
 
-    <div class="exp-entry">
-      <div>
-        <div class="exp-when">Aug 2024 — Dec 2024</div>
-        <div class="exp-company-name">Amazon</div>
-      </div>
-      <div>
-        <div class="exp-role-title">INTERN</div>
-        <ul class="exp-bullets">
-          <li>Developed internal and external communication plans for Reduction in Force and RTO, guided by experienced Amazon employees.</li>
-          <li>Collected and analyzed data from 500 Amazon workers to effectively align strategies with organizational needs and industry best practices.</li>
-          <li>Gained insights into Amazon's culture and core values by collaborating with 5 different teams and departments.</li>
-        </ul>
-        <div class="exp-badges">
-          <span class="exp-badge">Data Analysis</span>
-          <span class="exp-badge">Communications</span>
-          <span class="exp-badge">Strategy</span>
-        </div>
-      </div>
-    </div>
+  try {
+    const form = new FormData();
+    form.append('file', selectedFile);
+    const url = `/analyze?quantum=${useQuantum}`;
+    const res = await fetch(url, { method: 'POST', body: form });
+    clearInterval(interval);
 
-    <div class="exp-entry">
-      <div>
-        <div class="exp-when">Dec 2024 — Present</div>
-        <div class="exp-company-name">Vanderbilt Inst. of Nanoscale Science & Eng.</div>
-      </div>
-      <div>
-        <div class="exp-role-title">TECH CREW</div>
-        <ul class="exp-bullets">
-          <li>Acquired training and certification in key nanoscale engineering processes, building expertise in advanced techniques and cutting-edge methodologies.</li>
-          <li>Supported 20 researchers by assisting with equipment setup, calibration, and troubleshooting.</li>
-          <li>Developed reusable Graphene devices through CVD growth recipes and simple circuit designs.</li>
-        </ul>
-        <div class="exp-badges">
-          <span class="exp-badge">CVD Growth</span>
-          <span class="exp-badge">Graphene</span>
-          <span class="exp-badge">Nanofabrication</span>
-        </div>
-      </div>
-    </div>
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Server error');
+    }
 
-    <div class="exp-entry">
-      <div>
-        <div class="exp-when">Sep 2024 — Present</div>
-        <div class="exp-company-name">Bellan Lab for Advanced Materials</div>
-      </div>
-      <div>
-        <div class="exp-role-title">RESEARCH ASSISTANT</div>
-        <ul class="exp-bullets">
-          <li>Investigating advanced microfabrication techniques to enhance engineered tissues using lab equipment in controlled environments.</li>
-          <li>Utilizing mechanical stimulation to guide vascularization, calibrating specialized instruments for precise results.</li>
-          <li>Aiming to improve tissue organization through innovative approaches with strict adherence to sterile protocols.</li>
-        </ul>
-        <div class="exp-badges">
-          <span class="exp-badge">Microfabrication</span>
-          <span class="exp-badge">Tissue Engineering</span>
-          <span class="exp-badge">Sterile Lab</span>
-        </div>
-      </div>
-    </div>
+    const data = await res.json();
+    progressBar.style.width = '100%';
+    progressLabel.textContent = 'DONE';
+    setTimeout(() => { progressEl.style.display = 'none'; }, 500);
 
-    <div class="exp-entry">
-      <div>
-        <div class="exp-when">May 2022 — Aug 2022</div>
-        <div class="exp-company-name">ITU Aerospace Optimization Lab</div>
-      </div>
-      <div>
-        <div class="exp-role-title">RESEARCH INTERN</div>
-        <ul class="exp-bullets">
-          <li>Gained experience in 4 different mesh generation algorithms and optimization using Halton sequences.</li>
-          <li>Worked with Python and Jupyter Notebooks for data analysis and simulations to solve complex aerospace problems.</li>
-          <li>Familiar with CAD/CAE software for geometry modeling and integration.</li>
-        </ul>
-        <div class="exp-badges">
-          <span class="exp-badge">Python</span>
-          <span class="exp-badge">Jupyter</span>
-          <span class="exp-badge">CAD/CAE</span>
-        </div>
-      </div>
-    </div>
+    renderResults(data, useQuantum);
+  } catch (e) {
+    clearInterval(interval);
+    progressEl.style.display = 'none';
+    errorBox.textContent = '⚠ ' + e.message;
+    errorBox.style.display = 'block';
+    runBtn.disabled = false;
+  }
+}
 
-    <div class="exp-entry">
-      <div>
-        <div class="exp-when">May 2022 — Sep 2024</div>
-        <div class="exp-company-name">University of California, Santa Cruz</div>
-      </div>
-      <div>
-        <div class="exp-role-title">RESEARCH INTERN</div>
-        <ul class="exp-bullets">
-          <li>Worked on Ionized Gas Kinematics and Physical Conditions in M33 and Andromeda Galaxies, analyzing complex dynamics.</li>
-          <li>Created 250 BPT diagrams using Python and Jupyter Notebooks to analyze star-forming regions.</li>
-          <li>Studied Broad Emission-Lined Luminous Sources (BELLS), contributing insights to galactic formation and evolution.</li>
-        </ul>
-        <div class="exp-badges">
-          <span class="exp-badge">Python</span>
-          <span class="exp-badge">Astrophysics</span>
-          <span class="exp-badge">Data Viz</span>
-        </div>
-      </div>
-    </div>
+function tag(label, isQ) {
+  const t = document.createElement('span');
+  t.className = isQ ? 'outlier-tag q-tag' : 'outlier-tag';
+  t.textContent = label;
+  return t;
+}
 
-    <div class="exp-entry">
-      <div>
-        <div class="exp-when">Jun 2023 — Sep 2024</div>
-        <div class="exp-company-name">George Mason University</div>
-      </div>
-      <div>
-        <div class="exp-role-title">RESEARCH INTERN</div>
-        <ul class="exp-bullets">
-          <li>Worked in Professor Plavchan's Astrophysics research group, focusing on exoplanet research and advanced analysis techniques.</li>
-          <li>Contributed to projects studying exoplanetary systems and their potential for habitability and astrobiological research.</li>
-          <li>Invited to participate in Professor Plavchan's designated summer program with NASA.</li>
-        </ul>
-        <div class="exp-badges">
-          <span class="exp-badge">Exoplanets</span>
-          <span class="exp-badge">NASA</span>
-          <span class="exp-badge">Astrobiology</span>
-        </div>
-      </div>
-    </div>
+function renderResults(data, useQuantum) {
+  // Summary
+  document.getElementById('s-classical').textContent = data.summary.classical_unique ?? '—';
+  document.getElementById('s-quantum').textContent = data.summary.quantum_flagged ?? '—';
+  document.getElementById('s-qonly').textContent = data.summary.quantum_only ?? '—';
 
-  </div>
-</section>
+  // Classical methods
+  const methodDefs = [
+    { key: 'isolation_forest', label: 'Isolation Forest' },
+    { key: 'lof', label: 'Local Outlier Factor' },
+    { key: 'svm_rbf', label: 'One-Class SVM (RBF)' },
+    { key: 'isolation_forest_interactions', label: 'Isolation Forest + Interactions' },
+    { key: 'lof_interactions', label: 'LOF + Interactions' },
+    { key: 'svm_interactions', label: 'SVM-RBF + Interactions' },
+  ];
+  const grid = document.getElementById('methods-grid');
+  grid.innerHTML = '';
+  for (const m of methodDefs) {
+    const items = data.classical[m.key] || [];
+    const card = document.createElement('div');
+    card.className = 'method-card';
+    const name = document.createElement('div');
+    name.className = 'method-name';
+    name.textContent = m.label;
+    card.appendChild(name);
+    if (items.length === 0) {
+      const none = document.createElement('span');
+      none.className = 'none-tag';
+      none.textContent = 'No outliers';
+      card.appendChild(none);
+    } else {
+      items.forEach(o => card.appendChild(tag(o.label)));
+    }
+    grid.appendChild(card);
+  }
 
-<!-- CONTACT -->
-<section id="contact">
-  <div class="section-tag">04 — Contact</div>
-  <div class="contact-layout">
-    <div class="contact-panel-left">
-      <h2>LET'S<br>CONNECT.</h2>
-      <p>
-        Open to research collaborations, internships, and project-based engagements.
-        I respond to all enquiries within one business day.
-      </p>
-      <div class="contact-links">
-        <a href="mailto:sahpar.n.ozer@vanderbilt.edu" class="contact-link-row">
-          <div class="contact-link-icon">@</div>
-          <div class="contact-link-text">sahpar.n.ozer@vanderbilt.edu</div>
-        </a>
-        <a href="tel:+16155218787" class="contact-link-row">
-          <div class="contact-link-icon">tel</div>
-          <div class="contact-link-text">+1 (615) 521-8787</div>
-        </a>
-        <a href="https://linkedin.com" target="_blank" class="contact-link-row">
-          <div class="contact-link-icon">in</div>
-          <div class="contact-link-text">linkedin.com/in/sahpar-ozer</div>
-        </a>
-        <a href="#" class="contact-link-row">
-          <div class="contact-link-icon">cv</div>
-          <div class="contact-link-text">Download resume / CV</div>
-        </a>
-      </div>
-    </div>
-    <div class="contact-panel-right">
-      <h3>SEND A MESSAGE</h3>
-      <div class="field-row">
-        <div class="field-group">
-          <label class="field-label">First name</label>
-          <input type="text" class="field-input" placeholder="Jane">
-        </div>
-        <div class="field-group">
-          <label class="field-label">Last name</label>
-          <input type="text" class="field-input" placeholder="Smith">
-        </div>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Email</label>
-        <input type="email" class="field-input" placeholder="jane@company.com">
-      </div>
-      <div class="field-group">
-        <label class="field-label">Inquiry type</label>
-        <input type="text" class="field-input" placeholder="e.g. Research collaboration, internship...">
-      </div>
-      <div class="field-group">
-        <label class="field-label">Message</label>
-        <textarea class="field-textarea" placeholder="Tell me about your project or opportunity..."></textarea>
-      </div>
-      <button class="submit-btn" onclick="alert('Message sent!')">
-        Send message →
-      </button>
-    </div>
-  </div>
-</section>
+  // Quantum
+  const qSection = document.getElementById('quantum-section');
+  if (!useQuantum || !data.quantum) {
+    qSection.style.display = 'none';
+  } else if (data.quantum.error) {
+    qSection.style.display = 'none';
+    errorBox.textContent = '⚠ Quantum error: ' + data.quantum.error;
+    errorBox.style.display = 'block';
+  } else {
+    qSection.style.display = 'block';
+    const q = data.quantum;
 
-<!-- FOOTER -->
-<footer>
-  <div class="foot-logo">SO / ENG</div>
-  <div class="foot-copy">© 2026 Sahpar Ozer — Nashville, TN · Vanderbilt University</div>
-  <div class="foot-links">
-    <a href="#about">About</a>
-    <a href="#projects">Projects</a>
-    <a href="#experience">Experience</a>
-    <a href="#contact">Contact</a>
-  </div>
-</footer>
+    document.getElementById('q-meta').innerHTML = `
+      <div class="q-meta-item"><span>Qubits</span><strong>${q.qubits}</strong></div>
+      <div class="q-meta-item"><span>Variance Retained</span><strong>${q.variance_retained}%</strong></div>
+      <div class="q-meta-item"><span>Kernel Time</span><strong>${q.kernel_time_s}s</strong></div>
+      <div class="q-meta-item"><span>Outliers Found</span><strong>${q.outliers.length}</strong></div>
+    `;
 
+    const tbody = document.getElementById('ranking-body');
+    tbody.innerHTML = '';
+    q.ranking.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="rank-num">${r.rank}</td>
+        <td class="rank-label">${r.label}${r.also_classical ? '<span class="also-flag">classical</span>' : ''}</td>
+        <td class="rank-sim">${r.avg_similarity}</td>
+        <td></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    const qonly = document.getElementById('qonly-section');
+    qonly.innerHTML = '';
+    if (q.quantum_only.length > 0) {
+      const lbl = document.createElement('div');
+      lbl.className = 'section-label';
+      lbl.style.marginTop = '20px';
+      lbl.textContent = 'Quantum-Only Detections';
+      qonly.appendChild(lbl);
+      q.quantum_only.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'qonly-card';
+        card.innerHTML = `<div class="qonly-label">⬡ ${item.label}</div>`;
+        item.features.forEach(f => {
+          const row = document.createElement('div');
+          row.className = 'feature-row';
+          row.innerHTML = `<span class="feature-name">${f.name}</span><span><span class="feature-val">${f.value}</span><span class="feature-z">z=${f.z_score}</span></span>`;
+          card.appendChild(row);
+        });
+        const note = document.createElement('div');
+        note.className = 'qonly-note';
+        note.textContent = 'Each feature looks normal individually — the quantum kernel caught this through inter-feature correlation analysis.';
+        card.appendChild(note);
+        qonly.appendChild(card);
+      });
+    }
+  }
+
+  resultsEl.style.display = 'block';
+  resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  runBtn.disabled = false;
+}
+</script>
 </body>
 </html>
