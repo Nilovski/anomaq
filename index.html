@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnomaQ — Quantum Outlier Detection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050810;
+    --surface: #0c1020;
+    --surface2: #111828;
+    --border: rgba(100,180,255,0.12);
+    --q-color: #4af0c4;
+    --c-color: #f0a84a;
+    --danger: #f05a4a;
+    --text: #d8e8ff;
+    --muted: #6a7a9a;
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(74,240,196,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,240,196,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 { width: 400px; height: 400px; background: rgba(74,240,196,0.06); top: -100px; right: -100px; }
+  .orb-2 { width: 300px; height: 300px; background: rgba(100,120,255,0.08); bottom: 100px; left: -80px; }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  /* Header */
+  header {
+    margin-bottom: 56px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+  }
+
+  .logo-mark {
+    width: 48px; height: 48px;
+    border: 2px solid var(--q-color);
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .logo-mark::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: conic-gradient(from 0deg, var(--q-color), #4a80f0, var(--q-color));
+    border-radius: 6px;
+    animation: spin 4s linear infinite;
+    opacity: 0.6;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  h1 {
+    font-family: var(--font-head);
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    background: linear-gradient(120deg, var(--q-color), #80b0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .tagline {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 56px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+  }
+  .upload-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(74,240,196,0.05) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--q-color);
+    background: var(--surface2);
+  }
+  .upload-zone:hover::before, .upload-zone.drag-over::before { opacity: 1; }
+
+  .upload-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 16px;
+    filter: grayscale(0.3);
+  }
+  .upload-title {
+    font-family: var(--font-head);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .upload-sub { font-size: 0.72rem; color: var(--muted); }
+
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .btn-primary {
+    background: var(--q-color);
+    color: #050810;
+  }
+  .btn-primary:hover { background: #6af8d4; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  .toggle-q {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle-q input { display: none; }
+  .toggle-track {
+    width: 36px; height: 20px;
+    background: var(--surface2);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    position: relative;
+    transition: background 0.2s;
+  }
+  .toggle-track::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--muted);
+    top: 2px; left: 2px;
+    transition: all 0.2s;
+  }
+  .toggle-q input:checked + .toggle-track { background: rgba(74,240,196,0.2); border-color: var(--q-color); }
+  .toggle-q input:checked + .toggle-track::after { left: 18px; background: var(--q-color); }
+
+  /* Progress */
+  #progress {
+    display: none;
+    margin-top: 32px;
+    padding: 24px;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .progress-label {
+    font-size: 0.72rem;
+    color: var(--q-color);
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .progress-bar-wrap {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--q-color), #4a80f0);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.4s;
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.3); }
+    100% { filter: brightness(1); }
+  }
+
+  /* Results */
+  #results { display: none; margin-top: 48px; }
+
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Summary cards */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  @media (max-width: 600px) { .summary-grid { grid-template-columns: 1fr; } }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stat-card.classical::before { background: var(--c-color); }
+  .stat-card.quantum::before { background: var(--q-color); }
+  .stat-card.unique::before { background: var(--danger); }
+
+  .stat-num {
+    font-family: var(--font-head);
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card.classical .stat-num { color: var(--c-color); }
+  .stat-card.quantum .stat-num { color: var(--q-color); }
+  .stat-card.unique .stat-num { color: var(--danger); }
+  .stat-lbl { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* Method results */
+  .methods-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  @media (max-width: 600px) { .methods-grid { grid-template-columns: 1fr; } }
+
+  .method-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .method-name {
+    font-size: 0.68rem;
+    color: var(--c-color);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .outlier-tag {
+    display: inline-block;
+    background: rgba(240,168,74,0.12);
+    border: 1px solid rgba(240,168,74,0.25);
+    color: var(--c-color);
+    font-size: 0.68rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin: 2px;
+  }
+  .outlier-tag.q-tag {
+    background: rgba(74,240,196,0.1);
+    border-color: rgba(74,240,196,0.25);
+    color: var(--q-color);
+  }
+  .none-tag { font-size: 0.68rem; color: var(--muted); font-style: italic; }
+
+  /* Quantum section */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid rgba(74,240,196,0.2);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 12px;
+  }
+  .q-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .q-meta-item { font-size: 0.68rem; }
+  .q-meta-item span { color: var(--muted); display: block; margin-bottom: 2px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .q-meta-item strong { color: var(--q-color); }
+
+  /* Ranking table */
+  .ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.72rem;
+    margin-bottom: 24px;
+  }
+  .ranking-table th {
+    text-align: left;
+    color: var(--muted);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ranking-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .ranking-table tr:hover td { background: rgba(74,240,196,0.03); }
+  .rank-num { color: var(--muted); }
+  .rank-label { color: var(--text); }
+  .rank-sim { color: var(--q-color); font-weight: 700; }
+  .also-flag {
+    font-size: 0.6rem;
+    background: rgba(240,168,74,0.15);
+    color: var(--c-color);
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-left: 6px;
+  }
+
+  /* Quantum-only */
+  .qonly-card {
+    background: rgba(74,240,196,0.05);
+    border: 1px solid rgba(74,240,196,0.2);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .qonly-label {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--q-color);
+    margin-bottom: 10px;
+  }
+  .feature-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.66rem;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .feature-name { color: var(--muted); }
+  .feature-val { color: var(--text); }
+  .feature-z { color: var(--q-color); margin-left: 12px; }
+  .qonly-note {
+    margin-top: 10px;
+    font-size: 0.65rem;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* Error */
+  .error-box {
+    background: rgba(240,90,74,0.1);
+    border: 1px solid rgba(240,90,74,0.3);
+    border-radius: 10px;
+    padding: 20px;
+    color: var(--danger);
+    font-size: 0.75rem;
+    margin-top: 20px;
+  }
+
+  #file-name {
+    font-size: 0.7rem;
+    color: var(--q-color);
+    margin-top: 10px;
+    min-height: 18px;
+  }
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="wrap">
+  <header>
+    <div class="logo-mark"></div>
+    <div>
+      <h1>AnomaQ</h1>
+      <div class="tagline">Quantum vs Classical Outlier Detection</div>
+    </div>
+  </header>
+
+  <!-- Upload -->
+  <div class="upload-zone" id="drop-zone">
+    <span class="upload-icon">⬡</span>
+    <div class="upload-title">Drop your CSV here</div>
+    <div class="upload-sub">or click to browse — numeric columns are auto-detected</div>
+    <div id="file-name"></div>
+    <input type="file" id="file-input" accept=".csv" style="display:none">
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="run-btn" disabled>Run Analysis</button>
+    <label class="toggle-q" title="Quantum adds ~5-30s depending on feature count">
+      <input type="checkbox" id="use-quantum" checked>
+      <div class="toggle-track"></div>
+      Include Quantum Kernel
+    </label>
+  </div>
+
+  <div id="progress">
+    <div class="progress-label" id="progress-label">INITIALIZING...</div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  </div>
+
+  <div id="error-box" class="error-box" style="display:none"></div>
+
+  <!-- Results -->
+  <div id="results">
+    <!-- Summary -->
+    <div class="section-label">Summary</div>
+    <div class="summary-grid">
+      <div class="stat-card classical">
+        <div class="stat-num" id="s-classical">—</div>
+        <div class="stat-lbl">Classical flagged</div>
+      </div>
+      <div class="stat-card quantum">
+        <div class="stat-num" id="s-quantum">—</div>
+        <div class="stat-lbl">Quantum flagged</div>
+      </div>
+      <div class="stat-card unique">
+        <div class="stat-num" id="s-qonly">—</div>
+        <div class="stat-lbl">Quantum-only</div>
+      </div>
+    </div>
+
+    <!-- Classical methods -->
+    <div class="section-label">Classical Methods</div>
+    <div class="methods-grid" id="methods-grid"></div>
+
+    <!-- Quantum -->
+    <div id="quantum-section">
+      <div class="section-label">Quantum Kernel (ZZFeatureMap)</div>
+      <div class="q-card">
+        <div class="q-meta" id="q-meta"></div>
+        <table class="ranking-table" id="ranking-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Entity</th><th>Avg Similarity</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="ranking-body"></tbody>
+        </table>
+        <div id="qonly-section"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const runBtn = document.getElementById('run-btn');
+const fileNameEl = document.getElementById('file-name');
+const progressEl = document.getElementById('progress');
+const progressBar = document.getElementById('progress-bar');
+const progressLabel = document.getElementById('progress-label');
+const resultsEl = document.getElementById('results');
+const errorBox = document.getElementById('error-box');
+
+let selectedFile = null;
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.name.endsWith('.csv')) setFile(f);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+
+function setFile(f) {
+  selectedFile = f;
+  fileNameEl.textContent = `✓ ${f.name}  (${(f.size/1024).toFixed(1)} KB)`;
+  runBtn.disabled = false;
+}
+
+runBtn.addEventListener('click', runAnalysis);
+
+async function runAnalysis() {
+  if (!selectedFile) return;
+  const useQuantum = document.getElementById('use-quantum').checked;
+
+  runBtn.disabled = true;
+  resultsEl.style.display = 'none';
+  errorBox.style.display = 'none';
+  progressEl.style.display = 'block';
+
+  const steps = useQuantum
+    ? [
+        [5, 'LOADING CSV...'],
+        [20, 'RUNNING CLASSICAL METHODS...'],
+        [50, 'BUILDING QUANTUM CIRCUIT...'],
+        [75, 'COMPUTING KERNEL MATRIX...'],
+        [90, 'FITTING QUANTUM SVM...'],
+        [99, 'FINALIZING...'],
+      ]
+    : [
+        [10, 'LOADING CSV...'],
+        [60, 'RUNNING CLASSICAL METHODS...'],
+        [99, 'FINALIZING...'],
+      ];
+
+  let stepIdx = 0;
+  const interval = setInterval(() => {
+    if (stepIdx < steps.length) {
+      progressBar.style.width = steps[stepIdx][0] + '%';
+      progressLabel.textContent = steps[stepIdx][1];
+      stepIdx++;
+    }
+  }, useQuantum ? 2000 : 600);
+
+  try {
+    const form = new FormData();
+    form.append('file', selectedFile);
+    const url = `/analyze?quantum=${useQuantum}`;
+    const res = await fetch(url, { method: 'POST', body: form });
+    clearInterval(interval);
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Server error');
+    }
+
+    const data = await res.json();
+    progressBar.style.width = '100%';
+    progressLabel.textContent = 'DONE';
+    setTimeout(() => { progressEl.style.display = 'none'; }, 500);
+
+    renderResults(data, useQuantum);
+  } catch (e) {
+    clearInterval(interval);
+    progressEl.style.display = 'none';
+    errorBox.textContent = '⚠ ' + e.message;
+    errorBox.style.display = 'block';
+    runBtn.disabled = false;
+  }
+}
+
+function tag(label, isQ) {
+  const t = document.createElement('span');
+  t.className = isQ ? 'outlier-tag q-tag' : 'outlier-tag';
+  t.textContent = label;
+  return t;
+}
+
+function renderResults(data, useQuantum) {
+  // Summary
+  document.getElementById('s-classical').textContent = data.summary.classical_unique ?? '—';
+  document.getElementById('s-quantum').textContent = data.summary.quantum_flagged ?? '—';
+  document.getElementById('s-qonly').textContent = data.summary.quantum_only ?? '—';
+
+  // Classical methods
+  const methodDefs = [
+    { key: 'isolation_forest', label: 'Isolation Forest' },
+    { key: 'lof', label: 'Local Outlier Factor' },
+    { key: 'svm_rbf', label: 'One-Class SVM (RBF)' },
+    { key: 'isolation_forest_interactions', label: 'Isolation Forest + Interactions' },
+    { key: 'lof_interactions', label: 'LOF + Interactions' },
+    { key: 'svm_interactions', label: 'SVM-RBF + Interactions' },
+  ];
+  const grid = document.getElementById('methods-grid');
+  grid.innerHTML = '';
+  for (const m of methodDefs) {
+    const items = data.classical[m.key] || [];
+    const card = document.createElement('div');
+    card.className = 'method-card';
+    const name = document.createElement('div');
+    name.className = 'method-name';
+    name.textContent = m.label;
+    card.appendChild(name);
+    if (items.length === 0) {
+      const none = document.createElement('span');
+      none.className = 'none-tag';
+      none.textContent = 'No outliers';
+      card.appendChild(none);
+    } else {
+      items.forEach(o => card.appendChild(tag(o.label)));
+    }
+    grid.appendChild(card);
+  }
+
+  // Quantum
+  const qSection = document.getElementById('quantum-section');
+  if (!useQuantum || !data.quantum) {
+    qSection.style.display = 'none';
+  } else if (data.quantum.error) {
+    qSection.style.display = 'none';
+    errorBox.textContent = '⚠ Quantum error: ' + data.quantum.error;
+    errorBox.style.display = 'block';
+  } else {
+    qSection.style.display = 'block';
+    const q = data.quantum;
+
+    document.getElementById('q-meta').innerHTML = `
+      <div class="q-meta-item"><span>Qubits</span><strong>${q.qubits}</strong></div>
+      <div class="q-meta-item"><span>Variance Retained</span><strong>${q.variance_retained}%</strong></div>
+      <div class="q-meta-item"><span>Kernel Time</span><strong>${q.kernel_time_s}s</strong></div>
+      <div class="q-meta-item"><span>Outliers Found</span><strong>${q.outliers.length}</strong></div>
+    `;
+
+    const tbody = document.getElementById('ranking-body');
+    tbody.innerHTML = '';
+    q.ranking.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="rank-num">${r.rank}</td>
+        <td class="rank-label">${r.label}${r.also_classical ? '<span class="also-flag">classical</span>' : ''}</td>
+        <td class="rank-sim">${r.avg_similarity}</td>
+        <td></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    const qonly = document.getElementById('qonly-section');
+    qonly.innerHTML = '';
+    if (q.quantum_only.length > 0) {
+      const lbl = document.createElement('div');
+      lbl.className = 'section-label';
+      lbl.style.marginTop = '20px';
+      lbl.textContent = 'Quantum-Only Detections';
+      qonly.appendChild(lbl);
+      q.quantum_only.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'qonly-card';
+        card.innerHTML = `<div class="qonly-label">⬡ ${item.label}</div>`;
+        item.features.forEach(f => {
+          const row = document.createElement('div');
+          row.className = 'feature-row';
+          row.innerHTML = `<span class="feature-name">${f.name}</span><span><span class="feature-val">${f.value}</span><span class="feature-z">z=${f.z_score}</span></span>`;
+          card.appendChild(row);
+        });
+        const note = document.createElement('div');
+        note.className = 'qonly-note';
+        note.textContent = 'Each feature looks normal individually — the quantum kernel caught this through inter-feature correlation analysis.';
+        card.appendChild(note);
+        qonly.appendChild(card);
+      });
+    }
+  }
+
+  resultsEl.style.display = 'block';
+  resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  runBtn.disabled = false;
+}
+</script>
+</body>
+</html>
