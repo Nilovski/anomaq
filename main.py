@@ -1,5 +1,5 @@
 """
-AnomaQ — Domain-Aware Quantum + Classical Outlier Detection
+Catalyst — Domain-Aware Quantum + Classical Outlier Detection
 """
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
@@ -16,7 +16,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 warnings.filterwarnings('ignore')
 
-app = FastAPI(title="AnomaQ")
+app = FastAPI(title="Catalyst")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 executor = ThreadPoolExecutor(max_workers=2)
 
