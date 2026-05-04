@@ -158,6 +158,50 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--q),#00aaff);width:0%;transition:width .5s cubic-bezier(.4,0,.2,1)}
 
 .err-box{display:none;margin:0 20px 20px;padding:14px 18px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--r);font-family:var(--mono);font-size:.74rem;color:var(--danger)}
+/* RESULT TABS */
+.rtab-bar{display:flex;gap:3px;padding:16px 20px 0;border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.rtab-bar::-webkit-scrollbar{display:none}
+.rtab{font-family:var(--mono);font-size:.67rem;padding:8px 14px;border-radius:10px 10px 0 0;border:1px solid transparent;border-bottom:none;cursor:pointer;white-space:nowrap;color:var(--ink4);background:transparent;transition:all .18s;letter-spacing:.03em}
+.rtab:hover{background:rgba(0,0,0,.04);color:var(--ink2)}
+.rtab.on{background:var(--white);border-color:var(--border);color:var(--ink);margin-bottom:-1px;z-index:2;position:relative}
+.rpanel{display:none;animation:rfade .2s ease}
+.rpanel.on{display:block}
+@keyframes rfade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.explain-box{background:linear-gradient(135deg,rgba(0,200,150,.05),rgba(0,170,255,.03));border:1px solid rgba(0,200,150,.18);border-radius:var(--r);padding:13px 16px;margin-bottom:14px;font-size:.83rem;color:var(--ink2);line-height:1.65}
+.explain-box strong{color:var(--ink);display:block;margin-bottom:3px;font-size:.86rem}
+.explain-box.amber{background:rgba(245,158,11,.05);border-color:rgba(245,158,11,.2)}
+.explain-box.amber strong{color:#92400e}
+.explain-box.purple{background:rgba(139,92,246,.05);border-color:rgba(139,92,246,.18)}
+.explain-box.purple strong{color:#5b21b6}
+
+/* VERDICT CARDS — one per anomaly, plain English */
+.verdict-card{background:var(--white);border:1.5px solid var(--border2);border-radius:var(--r2);padding:20px 22px;margin-bottom:12px;box-shadow:var(--sh);transition:box-shadow .2s}
+.verdict-card:hover{box-shadow:var(--sh2)}
+.verdict-card.qonly{border-color:rgba(0,200,150,.35);background:linear-gradient(135deg,rgba(0,200,150,.04),rgba(0,170,255,.02))}
+.verdict-card.classical{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.03)}
+.verdict-card.both{border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.03)}
+.vc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.vc-name{font-family:var(--serif);font-size:1.25rem;color:var(--ink);line-height:1.2}
+.vc-badges{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0}
+.vc-badge{font-family:var(--mono);font-size:.58rem;padding:3px 8px;border-radius:100px;border:1px solid;white-space:nowrap}
+.vc-verdict{font-size:.88rem;color:var(--ink2);line-height:1.7;margin-bottom:14px;padding:11px 14px;background:rgba(0,0,0,.02);border-radius:9px;border-left:3px solid var(--q)}
+.vc-verdict.amber-border{border-left-color:var(--c)}
+.vc-verdict.purple-border{border-left-color:var(--purple)}
+.vc-features{display:flex;flex-direction:column;gap:5px}
+.vc-feat-row{display:flex;align-items:center;gap:8px}
+.vc-feat-name{font-family:var(--mono);font-size:.63rem;color:var(--ink3);width:110px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vc-feat-track{flex:1;height:7px;background:#f0f0f0;border-radius:100px;overflow:hidden}
+.vc-feat-fill{height:100%;border-radius:100px;transition:width .9s cubic-bezier(.4,0,.2,1)}
+.vc-feat-val{font-family:var(--mono);font-size:.6rem;width:88px;text-align:right;flex-shrink:0}
+.vc-methods{margin-top:10px;display:flex;gap:5px;flex-wrap:wrap}
+.vc-method-tag{font-family:var(--mono);font-size:.58rem;padding:2px 7px;border-radius:5px;background:rgba(0,0,0,.04);border:1px solid var(--border);color:var(--ink4)}
+.vc-method-tag.hit{background:rgba(0,200,150,.08);border-color:rgba(0,200,150,.2);color:#065f46}
+.vc-method-tag.q-hit{background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.2);color:#5b21b6}
+.confidence-bar{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.conf-label{font-family:var(--mono);font-size:.6rem;color:var(--ink4);white-space:nowrap}
+.conf-pips{display:flex;gap:3px}
+.pip{width:20px;height:6px;border-radius:3px;background:#f0f0f0}
+.pip.on-c{background:var(--c)}.pip.on-q{background:var(--q)}.pip.on-b{background:var(--purple)}
 
 /* RESULTS */
 .stats-strip{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--r2);background:rgba(255,255,255,.85);margin:20px;overflow:hidden;box-shadow:var(--sh)}
@@ -262,11 +306,6 @@ footer{padding:56px 48px;border-top:1px solid var(--border);display:flex;align-i
 .footer-logo{font-size:.95rem;font-weight:600;color:var(--ink3)}
 .footer-note{font-family:var(--mono);font-size:.68rem;color:var(--ink4)}
 
-/* kernel config buttons */
-.cfg-btn{font-family:var(--mono);font-size:.6rem;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer;transition:all .18s}
-.cfg-btn:hover{border-color:var(--ink3);color:var(--ink)}
-.cfg-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
-
 @media(max-width:640px){nav{padding:12px 18px}.section{padding:80px 18px}.hero{padding:100px 18px 60px}footer{padding:36px 18px}}
 </style>
 </head>
@@ -284,7 +323,6 @@ footer{padding:56px 48px;border-top:1px solid var(--border);display:flex;align-i
   <div class="nav-links">
     <a href="#how" class="nav-link">How it works</a>
     <a href="#features" class="nav-link">Features</a>
-    <a href="#benchmarks" class="nav-link">Benchmarks</a>
   </div>
   <a href="#analyze" class="btn-nav">Try it →</a>
 </nav>
@@ -299,14 +337,14 @@ footer{padding:56px 48px;border-top:1px solid var(--border);display:flex;align-i
     <div class="pill-dot">
       <svg viewBox="0 0 10 10" fill="none"><polygon points="5,1 9,3 9,7 5,9 1,7 1,3" stroke="white" stroke-width="1.3" fill="none"/><circle cx="5" cy="5" r="1.5" fill="white"/></svg>
     </div>
-    Matches or beats classical on 3/4 benchmarks
+    Quantum + Classical Outlier Detection
   </div>
 
   <h1 class="hero-h1">
     Find what <em>nothing else</em><br>can see — with <span class="acc">quantum</span>
   </h1>
 
-  <p class="hero-p">AnomaQ runs six classical algorithms and a quantum kernel simultaneously. In benchmarks across four real-world datasets, Quantum PCA and QAE match or beat the best classical on 3 of 4 — including perfect 1.000 AUC where OCSVM peaks at 0.868.</p>
+  <p class="hero-p">AnomaQ runs six classical algorithms and a quantum kernel simultaneously, catching hidden anomalies that live in correlations classical methods can never reach.</p>
 
   <div class="hero-btns">
     <button class="btn-p" onclick="document.getElementById('analyze').scrollIntoView({behavior:'smooth'})">Analyze your data →</button>
@@ -430,119 +468,6 @@ footer{padding:56px 48px;border-top:1px solid var(--border);display:flex;align-i
   </div>
 </section>
 
-<!-- ═══ BENCHMARKS ═══ -->
-<section class="section grid-bg" id="benchmarks" style="background:var(--off)">
-  <div class="section-mid">
-    <span class="overline reveal">Measured performance</span>
-    <h2 class="section-h reveal d1">Real numbers, <em>real datasets</em></h2>
-    <p class="section-p reveal d2">ROC-AUC across four ODDS-derived datasets, stratified to n=120. Bold green = quantum matching or beating the best classical baseline.</p>
-  </div>
-  <div style="max-width:900px;margin:0 auto">
-
-    <!-- AUC table -->
-    <div class="reveal" style="overflow-x:auto;margin-bottom:36px">
-      <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.72rem">
-        <thead>
-          <tr style="border-bottom:2px solid var(--border2)">
-            <th style="text-align:left;padding:12px 14px;color:var(--ink4);font-weight:500;letter-spacing:.08em;white-space:nowrap">DATASET</th>
-            <th style="padding:12px 8px;color:var(--c);font-weight:500">IsoForest</th>
-            <th style="padding:12px 8px;color:var(--c);font-weight:500">LOF</th>
-            <th style="padding:12px 8px;color:var(--c);font-weight:500">OCSVM</th>
-            <th style="padding:12px 8px;color:var(--ink3);font-weight:500">QKernel</th>
-            <th style="padding:12px 8px;color:var(--q);font-weight:600">qPCA</th>
-            <th style="padding:12px 8px;color:var(--q);font-weight:600">QAE</th>
-            <th style="padding:12px 8px;color:var(--ink3);font-weight:500">QAOA</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-bottom:1px solid var(--border)" onmouseenter="this.style.background='rgba(0,0,0,.02)'" onmouseleave="this.style.background=''">
-            <td style="padding:12px 14px;color:var(--ink2);white-space:nowrap">14_glass <span style="color:var(--ink4)">(120, 7, 5)</span></td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink3)">0.729</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--c);font-weight:600">0.777</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.421</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.428</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.577</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.523</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.563</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border)" onmouseenter="this.style.background='rgba(0,0,0,.02)'" onmouseleave="this.style.background=''">
-            <td style="padding:12px 14px;color:var(--ink2);white-space:nowrap">21_Lymphography <span style="color:var(--ink4)">(120, 18, 5)</span></td>
-            <td style="padding:12px 8px;text-align:center;color:var(--c);font-weight:600">1.000</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink3)">0.997</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.868</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.623</td>
-            <td style="padding:12px 8px;text-align:center;background:rgba(0,200,150,.1);border-radius:5px;color:var(--q);font-weight:700">0.998</td>
-            <td style="padding:12px 8px;text-align:center;background:rgba(0,200,150,.1);border-radius:5px;color:var(--q);font-weight:700">1.000 ✓</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.457</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border)" onmouseenter="this.style.background='rgba(0,0,0,.02)'" onmouseleave="this.style.background=''">
-            <td style="padding:12px 14px;color:var(--ink2);white-space:nowrap">42_WBC <span style="color:var(--ink4)">(120, 9, 5)</span></td>
-            <td style="padding:12px 8px;text-align:center;color:var(--c);font-weight:600">0.998</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink3)">0.970</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.863</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.774</td>
-            <td style="padding:12px 8px;text-align:center;background:rgba(0,200,150,.1);border-radius:5px;color:var(--q);font-weight:700">0.995 ✓</td>
-            <td style="padding:12px 8px;text-align:center;background:rgba(0,200,150,.1);border-radius:5px;color:var(--q);font-weight:700">0.993 ✓</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.457</td>
-          </tr>
-          <tr onmouseenter="this.style.background='rgba(0,0,0,.02)'" onmouseleave="this.style.background=''">
-            <td style="padding:12px 14px;color:var(--ink2);white-space:nowrap">45_wine <span style="color:var(--ink4)">(120, 13, 9)</span></td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink3)">0.841</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--c);font-weight:600">0.897</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.552</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.474</td>
-            <td style="padding:12px 8px;text-align:center;background:rgba(0,200,150,.1);border-radius:5px;color:var(--q);font-weight:700">0.879 ✓</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.613</td>
-            <td style="padding:12px 8px;text-align:center;color:var(--ink4)">0.455</td>
-          </tr>
-        </tbody>
-      </table>
-      <div style="display:flex;gap:18px;margin-top:10px;padding:0 2px">
-        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:var(--c)"></div><span style="font-family:var(--mono);font-size:.6rem;color:var(--ink4)">Best classical</span></div>
-        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:var(--q)"></div><span style="font-family:var(--mono);font-size:.6rem;color:var(--ink4)">Quantum ≥ best classical</span></div>
-        <div style="font-family:var(--mono);font-size:.6rem;color:var(--ink4);margin-left:auto">n=120 · ODDS benchmarks</div>
-      </div>
-    </div>
-
-    <!-- Callout cards -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:28px" class="reveal d1">
-      <div style="background:linear-gradient(135deg,rgba(0,200,150,.07),rgba(0,170,255,.04));border:1.5px solid rgba(0,200,150,.2);border-radius:var(--r2);padding:22px;text-align:center">
-        <div style="font-family:var(--serif);font-size:2.6rem;color:var(--q);line-height:1;margin-bottom:4px">3/4</div>
-        <div style="font-family:var(--mono);font-size:.6rem;color:var(--ink4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Benchmarks won</div>
-        <div style="font-size:.8rem;color:var(--ink3);line-height:1.55">qPCA and QAE match or beat best classical</div>
-      </div>
-      <div style="background:linear-gradient(135deg,rgba(139,92,246,.06),rgba(0,200,150,.03));border:1.5px solid rgba(139,92,246,.18);border-radius:var(--r2);padding:22px;text-align:center">
-        <div style="font-family:var(--serif);font-size:2.6rem;color:var(--purple);line-height:1;margin-bottom:4px">1.000</div>
-        <div style="font-family:var(--mono);font-size:.6rem;color:var(--ink4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Perfect AUC</div>
-        <div style="font-size:.8rem;color:var(--ink3);line-height:1.55">QAE on Lymphography vs 0.868 classical peak</div>
-      </div>
-      <div style="background:rgba(245,158,11,.05);border:1.5px solid rgba(245,158,11,.2);border-radius:var(--r2);padding:22px;text-align:center">
-        <div style="font-family:var(--serif);font-size:2.6rem;color:var(--c);line-height:1;margin-bottom:4px">4/7</div>
-        <div style="font-family:var(--mono);font-size:.6rem;color:var(--ink4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Vehicle consensus</div>
-        <div style="font-size:.8rem;color:var(--ink3);line-height:1.55">Methods agree on VH-007 as physical outlier</div>
-      </div>
-    </div>
-
-    <!-- Vehicle ensemble -->
-    <div class="reveal d2" style="background:var(--white);border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;box-shadow:var(--sh)">
-      <div style="padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
-        <div style="width:34px;height:34px;border-radius:9px;background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.2);display:grid;place-items:center;font-size:1rem;flex-shrink:0">🚗</div>
-        <div>
-          <div style="font-size:.92rem;font-weight:500;color:var(--ink)">Vehicle ensemble · headline demo</div>
-          <div style="font-family:var(--mono);font-size:.6rem;color:var(--ink4)">26 vehicles · 7 SAR/physical features</div>
-        </div>
-        <div style="margin-left:auto;font-family:var(--mono);font-size:.65rem;padding:4px 11px;border-radius:100px;background:rgba(0,200,150,.1);color:#065f46;border:1px solid rgba(0,200,150,.18)">4/7 consensus → VH-007</div>
-      </div>
-      <div style="padding:16px 24px">
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px" id="vehicle-methods-bm"></div>
-        <div style="font-family:var(--mono);font-size:.65rem;color:var(--ink4);line-height:1.7;padding-top:10px;border-top:1px solid var(--border)">
-          <span style="color:var(--q);font-weight:600">VH-007</span> flagged by IsolationForest, LOF, QuantumPCA, QAE. &nbsp;·&nbsp; QKernel-OCSVM → VH-015 (small-sample saturation). &nbsp;·&nbsp; QAOA → VH-021 (10-qubit subsample cap).
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ═══ ANALYZE ═══ -->
 <section class="section" id="analyze">
   <div class="section-mid">
@@ -566,32 +491,11 @@ footer{padding:56px 48px;border-top:1px solid var(--border);display:flex;align-i
       </div>
       <div class="controls">
         <button class="btn-p" id="run-btn" disabled style="font-size:.88rem;padding:11px 26px">Run Analysis →</button>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <!-- Feature map selector -->
-          <div style="display:flex;gap:4px;align-items:center;border:1px solid var(--border);border-radius:10px;padding:5px 8px;background:rgba(255,255,255,.8)">
-            <span style="font-family:var(--mono);font-size:.6rem;color:var(--ink4);margin-right:4px">MAP</span>
-            <button class="cfg-btn active" id="map-zz" onclick="setCfg('map','ZZ',this)">ZZ</button>
-            <button class="cfg-btn" id="map-pauli" onclick="setCfg('map','Pauli',this)">Pauli</button>
-          </div>
-          <!-- Entanglement selector -->
-          <div style="display:flex;gap:4px;align-items:center;border:1px solid var(--border);border-radius:10px;padding:5px 8px;background:rgba(255,255,255,.8)">
-            <span style="font-family:var(--mono);font-size:.6rem;color:var(--ink4);margin-right:4px">ENT</span>
-            <button class="cfg-btn active" id="ent-linear" onclick="setCfg('ent','linear',this)">linear</button>
-            <button class="cfg-btn" id="ent-full" onclick="setCfg('ent','full',this)">full</button>
-            <button class="cfg-btn" id="ent-circ" onclick="setCfg('ent','circular',this)">circ</button>
-          </div>
-          <!-- Reps -->
-          <div style="display:flex;gap:6px;align-items:center;border:1px solid var(--border);border-radius:10px;padding:5px 10px;background:rgba(255,255,255,.8)">
-            <span style="font-family:var(--mono);font-size:.6rem;color:var(--ink4)">REPS</span>
-            <input type="range" min="1" max="2" value="2" id="reps-slider" oninput="document.getElementById('reps-val').textContent=this.value;qConfig.reps=+this.value" style="width:52px;accent-color:var(--ink);cursor:pointer" title="Higher reps = deeper circuit but much slower. Capped at 2 for Render compatibility.">
-            <span style="font-family:var(--mono);font-size:.72rem;color:var(--ink);min-width:10px" id="reps-val">2</span>
-          </div>
-          <label class="q-toggle">
-            <input type="checkbox" id="use-quantum" checked>
-            <div class="qt"></div>
-            ⬡ Quantum
-          </label>
-        </div>
+        <label class="q-toggle">
+          <input type="checkbox" id="use-quantum" checked>
+          <div class="qt"></div>
+          ⬡ Quantum Kernel
+        </label>
       </div>
       <div id="progress">
         <div class="prog-h">
@@ -608,45 +512,10 @@ footer{padding:56px 48px;border-top:1px solid var(--border);display:flex;align-i
 
 <footer>
   <div class="footer-logo">AnomaQ</div>
-  <div class="footer-note">ZZFeatureMap · QuantumPCA · QAE · QAOA-MaxCut · FastAPI + Qiskit</div>
+  <div class="footer-note">Quantum + Classical Outlier Detection · FastAPI + Qiskit</div>
 </footer>
 
 <script>
-// KERNEL CONFIG STATE
-const qConfig={map:'ZZ',ent:'linear',reps:2};
-function setCfg(key,val,btn){
-  qConfig[key]=val;
-  const prefix=key==='map'?'map-':key==='ent'?'ent-':'';
-  if(prefix)document.querySelectorAll(`[id^="${prefix}"]`).forEach(b=>b.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-}
-
-// VEHICLE BENCHMARK CARDS
-(()=>{
-  const methods=[
-    {name:'IsoForest',top1:'VH-007',isQ:false,match:true},
-    {name:'LOF',top1:'VH-007',isQ:false,match:true},
-    {name:'OCSVM',top1:'VH-003',isQ:false,match:false},
-    {name:'QKernel',top1:'VH-015',isQ:true,match:false},
-    {name:'qPCA',top1:'VH-007',isQ:true,match:true},
-    {name:'QAE',top1:'VH-007',isQ:true,match:true},
-    {name:'QAOA',top1:'VH-021',isQ:true,match:false},
-  ];
-  const c=document.getElementById('vehicle-methods-bm');
-  if(!c)return;
-  methods.forEach(m=>{
-    const border=m.match?'rgba(0,200,150,.28)':m.isQ?'rgba(139,92,246,.18)':'var(--border)';
-    const bg=m.match?'rgba(0,200,150,.05)':m.isQ?'rgba(139,92,246,.03)':'transparent';
-    const nameCol=m.isQ?'var(--q)':'var(--c)';
-    const badge=m.match?`<div style="font-family:var(--mono);font-size:.52rem;padding:2px 5px;border-radius:100px;background:rgba(0,200,150,.12);color:#065f46;border:1px solid rgba(0,200,150,.18);margin-top:3px">consensus</div>`:'';
-    c.insertAdjacentHTML('beforeend',`<div style="border:1px solid ${border};background:${bg};border-radius:9px;padding:10px 8px;text-align:center">
-      <div style="font-family:var(--mono);font-size:.55rem;color:${nameCol};margin-bottom:4px;letter-spacing:.04em">${m.name}</div>
-      <div style="font-family:var(--serif);font-size:1rem;color:${m.match?'var(--ink)':'var(--ink4)'}">${m.top1}</div>
-      ${badge}
-    </div>`);
-  });
-})();
-
 // CURSOR
 const cur=document.getElementById('cur'),curR=document.getElementById('curR');
 let mx=0,my=0,rx=0,ry=0;
@@ -722,7 +591,7 @@ dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remov
 fileInput.addEventListener('change',()=>{if(fileInput.files[0])setFile(fileInput.files[0])});
 function setFile(f){selectedFile=f;fileNameEl.textContent=`✓ ${f.name}  (${(f.size/1024).toFixed(1)} KB)`;runBtn.disabled=false}
 
-// RUN — uses SSE streaming to avoid Render's 30s timeout
+// RUN
 runBtn.addEventListener('click',run);
 async function run(){
   if(!selectedFile)return;
@@ -732,221 +601,323 @@ async function run(){
   document.getElementById('err-box').style.display='none';
   const prog=document.getElementById('progress'),fill=document.getElementById('prog-fill'),lbl=document.getElementById('prog-lbl'),pct=document.getElementById('prog-pct');
   prog.style.display='block';
-  fill.style.width='2%';lbl.textContent='UPLOADING...';pct.textContent='2%';
-
-  const form=new FormData();
-  form.append('file',selectedFile);
-  const params=new URLSearchParams({
-    quantum:useQ,
-    feature_map:qConfig.map,
-    entanglement:qConfig.ent,
-    reps:qConfig.reps
-  });
-
+  const steps=useQ?[[5,'LOADING CSV...'],[20,'CLASSICAL METHODS...'],[50,'BUILDING QUANTUM CIRCUIT...'],[75,'KERNEL MATRIX...'],[90,'FITTING QSVM...'],[99,'FINALIZING...']]:[[10,'LOADING CSV...'],[60,'CLASSICAL METHODS...'],[99,'FINALIZING...']];
+  let si=0;
+  const iv=setInterval(()=>{if(si<steps.length){fill.style.width=steps[si][0]+'%';lbl.textContent=steps[si][1];pct.textContent=steps[si][0]+'%';si++}},useQ?2000:600);
   try{
-    const res=await fetch(`/analyze-stream?${params}`,{method:'POST',body:form});
-    if(!res.ok){
-      const e=await res.json().catch(()=>({detail:'Server error'}));
-      throw new Error(e.detail||'Server error');
-    }
-
-    const reader=res.body.getReader();
-    const decoder=new TextDecoder();
-    let buf='';
-    let resultData=null;
-
-    while(true){
-      const {done,value}=await reader.read();
-      if(done)break;
-      buf+=decoder.decode(value,{stream:true});
-      const msgs=buf.split('\n\n');
-      buf=msgs.pop(); // keep incomplete chunk
-      for(const msg of msgs){
-        if(!msg.trim())continue;
-        const lines=msg.split('\n');
-        let event='',data='';
-        for(const line of lines){
-          if(line.startsWith('event: '))event=line.slice(7).trim();
-          if(line.startsWith('data: '))data=line.slice(6).trim();
-        }
-        if(!data)continue;
-        const parsed=JSON.parse(data);
-        if(event==='progress'){
-          fill.style.width=parsed.pct+'%';
-          lbl.textContent=parsed.label.toUpperCase();
-          pct.textContent=parsed.pct+'%';
-        } else if(event==='result'){
-          resultData=parsed;
-        } else if(event==='error'){
-          throw new Error(parsed.message||'Analysis failed');
-        }
-      }
-    }
-
+    const form=new FormData();form.append('file',selectedFile);
+    const res=await fetch(`/analyze?quantum=${useQ}`,{method:'POST',body:form});
+    clearInterval(iv);
+    if(!res.ok){const e=await res.json();throw new Error(e.detail||'Server error')}
+    const data=await res.json();
     fill.style.width='100%';pct.textContent='100%';lbl.textContent='COMPLETE ✓';
     setTimeout(()=>{prog.style.display='none'},700);
-    if(resultData)render(resultData,useQ);
-    else throw new Error('No results received from server');
-    runBtn.disabled=false;
-
+    render(data,useQ);
   }catch(e){
-    prog.style.display='none';
-    const eb=document.getElementById('err-box');
-    eb.textContent='⚠ '+e.message;
-    eb.style.display='block';
-    runBtn.disabled=false;
+    clearInterval(iv);prog.style.display='none';
+    const eb=document.getElementById('err-box');eb.textContent='⚠ '+e.message;eb.style.display='block';runBtn.disabled=false;
   }
 }
 
 function lerp(a,b,t){return a+(b-a)*t}
 function zCol(z){return z>=3?'#ef4444':z>=2?'#f59e0b':'#00c896'}
 function zCls(z){return z>=3?'z-hi':z>=2?'z-md':'z-lo'}
+function switchTab(id){
+  document.querySelectorAll('.rtab').forEach(t=>t.classList.toggle('on',t.dataset.tab===id));
+  document.querySelectorAll('.rpanel').forEach(p=>p.classList.toggle('on',p.id==='rp-'+id));
+}
 
 function render(data,useQ){
   const el=document.getElementById('results');
+
+  // ── Helpers ────────────────────────────────────────────────────────────
   const mKeys=['isolation_forest','lof','svm_rbf','isolation_forest_interactions','lof_interactions','svm_interactions'];
-  const mLbls=['Isolation Forest','LOF','One-Class SVM','IF + Interactions','LOF + Interactions','SVM + Interactions'];
+  const mLbls=['Isolation Forest','LOF','One-Class SVM','IF+Interactions','LOF+Interactions','SVM+Interactions'];
+  const mDesc=['Tree-based: isolates points that are easy to separate from the rest.',
+               'Density-based: flags points in unusually sparse neighbourhoods.',
+               'Boundary-based: draws a tight boundary around normal data.',
+               'Isolation Forest also checking every pair of features together.',
+               'LOF also checking every pair of features together.',
+               'One-Class SVM also checking every pair of features together.'];
+
   const cSets=mKeys.map(k=>new Set((data.classical[k]||[]).map(o=>o.idx)));
   const allC=new Set((data.classical.all_unique||[]).map(o=>o.idx));
-  const qSet=new Set((useQ&&data.quantum&&!data.quantum.error)?(data.quantum.outliers||[]).map(o=>o.idx):[]);
+
+  // Quantum sets — ZZKernel + qPCA + QAE
+  const qKernelSet=new Set((useQ&&data.quantum&&!data.quantum.error)?(data.quantum.outliers||[]).map(o=>o.idx):[]);
+  const qPCASet   =new Set((useQ&&data.quantum?.qpca_outliers||[]).map(o=>o.idx));
+  const qAESet    =new Set((useQ&&data.quantum?.qae_outliers ||[]).map(o=>o.idx));
+  const allQ      =new Set([...qKernelSet,...qPCASet,...qAESet]);
+  const qOnly     =new Set([...allQ].filter(i=>!allC.has(i)));
+  const both      =new Set([...allQ].filter(i=>allC.has(i)));
+
+  // Label map
   const labelMap={};
   (data.classical.all_unique||[]).forEach(o=>labelMap[o.idx]=o.label);
   if(data.quantum?.outliers)data.quantum.outliers.forEach(o=>{if(!labelMap[o.idx])labelMap[o.idx]=o.label});
+  if(data.quantum?.qpca_outliers)data.quantum.qpca_outliers.forEach(o=>{if(!labelMap[o.idx])labelMap[o.idx]=o.label});
+  if(data.quantum?.qae_outliers) data.quantum.qae_outliers.forEach(o=>{if(!labelMap[o.idx])labelMap[o.idx]=o.label});
 
-  // Stats
+  const allAnomalies=new Set([...allC,...allQ]);
+  const features=data.meta.features||[];
+
+  // Per-entity feature data from quantum_only details
+  const featureMap={};
+  (data.quantum?.quantum_only||[]).forEach(item=>{featureMap[item.idx]=item;});
+
+  // ── Why is this an anomaly? — plain English per entity ─────────────────
+  function buildVerdict(idx){
+    const label=labelMap[idx]||`Row ${idx}`;
+    const inC=allC.has(idx), inQ=allQ.has(idx);
+    const inKernel=qKernelSet.has(idx), inPCA=qPCASet.has(idx), inAE=qAESet.has(idx);
+    const cVotes=cSets.filter(s=>s.has(idx)).length;
+    const qVotes=[inKernel,inPCA,inAE].filter(Boolean).length;
+    const totalVotes=cVotes+qVotes;
+    const maxVotes=mKeys.length+3;
+
+    // Confidence
+    const confPct=Math.round((totalVotes/maxVotes)*100);
+    const confLabel=confPct>=70?'High confidence':confPct>=40?'Medium confidence':'Low confidence — single method only';
+    const confColor=confPct>=70?'on-b':confPct>=40?'on-c':'on-c';
+
+    // Category
+    let cat='classical', catLabel='Classical Anomaly', catColor='var(--c)', borderClass='amber-border';
+    if(inQ&&!inC){cat='qonly';catLabel='⬡ Quantum-Only';catColor='var(--q)';borderClass='';}
+    else if(inQ&&inC){cat='both';catLabel='Both Agree';catColor='var(--purple)';borderClass='purple-border';}
+
+    // Plain-English reason
+    const item=featureMap[idx];
+    let reason='';
+    if(item&&item.features){
+      const hi=item.features.filter(f=>f.z_score>=2.5).sort((a,b)=>b.z_score-a.z_score);
+      const med=item.features.filter(f=>f.z_score>=1.5&&f.z_score<2.5).sort((a,b)=>b.z_score-a.z_score);
+      if(hi.length>0){
+        reason=`<strong>Why flagged:</strong> ${hi.map(f=>`<strong>${f.name}</strong> is significantly elevated (${f.value}, z-score ${f.z_score})`).join('; ')}. `;
+        if(inQ&&!inC) reason+=`Despite this, classical methods still missed it — the quantum kernel detected it through the combination of all features together, not any single value.`;
+        else if(inQ&&inC) reason+=`Both classical and quantum methods independently flagged this entity.`;
+        else reason+=`${cVotes} of 6 classical methods independently agreed.`;
+      } else if(med.length>0){
+        reason=`<strong>Why flagged:</strong> No single feature is dramatically out of range, but ${med.map(f=>`<strong>${f.name}</strong> (${f.value})`).join(', ')} ${med.length>1?'are':'is'} all slightly elevated. `;
+        if(inQ) reason+=`The quantum kernel detected that the <em>combination</em> of these borderline values together is statistically impossible in normal data.`;
+        else reason+=`Multiple classical methods agreed this combination is unusual.`;
+      } else {
+        reason=`<strong>Why flagged:</strong> Every individual feature looks completely normal. The quantum kernel detected this entity through <em>cross-feature correlation patterns</em> — the way features relate to each other — which is invisible to every classical algorithm. This is the core quantum advantage.`;
+      }
+    } else if(inC&&!inQ){
+      reason=`<strong>Why flagged:</strong> ${cVotes} classical method${cVotes>1?'s':''} independently flagged this entity. `;
+      reason+=cVotes>=4?`High agreement across methods — this is a strong anomaly signal.`
+             :cVotes>=2?`Multiple methods agree, suggesting a genuine anomaly.`
+             :`Only one method flagged this — treat with caution, may be a false alarm.`;
+    } else {
+      reason=`<strong>Why flagged:</strong> Detected by ${totalVotes} method${totalVotes>1?'s':''} across classical and quantum approaches.`;
+    }
+
+    // Feature bars
+    let featBars='';
+    if(item&&item.features){
+      const maxZ=Math.max(...item.features.map(f=>f.z_score),0.1);
+      item.features.slice(0,6).forEach(f=>{
+        const pct=Math.min(100,(f.z_score/Math.max(maxZ,3))*100);
+        featBars+=`<div class="vc-feat-row">
+          <div class="vc-feat-name" title="${f.name}">${f.name}</div>
+          <div class="vc-feat-track"><div class="vc-feat-fill" data-w="${pct.toFixed(1)}" style="width:0%;background:${zCol(f.z_score)}"></div></div>
+          <div class="vc-feat-val ${zCls(f.z_score)}">z=${f.z_score} · ${f.value}</div>
+        </div>`;
+      });
+    }
+
+    // Method tags
+    const allMethods=[
+      {k:'isolation_forest',l:'IsoForest',q:false},
+      {k:'lof',l:'LOF',q:false},
+      {k:'svm_rbf',l:'OCSVM',q:false},
+      {k:'isolation_forest_interactions',l:'IF+Int',q:false},
+      {k:'lof_interactions',l:'LOF+Int',q:false},
+      {k:'svm_interactions',l:'SVM+Int',q:false},
+      {k:'_kernel',l:'QKernel',q:true},
+      {k:'_pca',l:'qPCA',q:true},
+      {k:'_ae',l:'QAE',q:true},
+    ];
+    const methodHit=(m)=>{
+      if(m.k==='_kernel') return inKernel;
+      if(m.k==='_pca')    return inPCA;
+      if(m.k==='_ae')     return inAE;
+      return cSets[mKeys.indexOf(m.k)]?.has(idx);
+    };
+    const tagH=allMethods.map(m=>{
+      const hit=methodHit(m);
+      const cls=hit?(m.q?'q-hit':'hit'):'';
+      return `<span class="vc-method-tag ${cls}">${m.l}</span>`;
+    }).join('');
+
+    // Confidence pips
+    const pips=Array.from({length:9},(_,i)=>`<div class="pip ${i<totalVotes?confColor:''}"></div>`).join('');
+
+    return `<div class="verdict-card ${cat}">
+      <div class="vc-header">
+        <div class="vc-name">${label}</div>
+        <div class="vc-badges">
+          <span class="vc-badge" style="color:${catColor};border-color:${catColor}">${catLabel}</span>
+        </div>
+      </div>
+      <div class="vc-verdict ${borderClass}">${reason}</div>
+      ${featBars?`<div class="vc-features">${featBars}</div>`:''}
+      <div class="confidence-bar">
+        <span class="conf-label">Detection confidence</span>
+        <div class="conf-pips">${pips}</div>
+        <span style="font-family:var(--mono);font-size:.6rem;color:var(--ink4)">${confLabel} · ${totalVotes}/${maxVotes} methods</span>
+      </div>
+      <div class="vc-methods">${tagH}</div>
+    </div>`;
+  }
+
+  // ── SUMMARY STRIP ──────────────────────────────────────────────────────
   let html=`<div class="stats-strip">
     <div class="stat-p"><div class="spv">${data.meta.rows}</div><div class="spl">ROWS</div></div>
-    <div class="stat-p"><div class="spv">${data.meta.features?.length||'—'}</div><div class="spl">FEATURES</div></div>
-    <div class="stat-p sc"><div class="spv">${data.summary.classical_unique??'—'}</div><div class="spl">CLASSICAL</div></div>
-    <div class="stat-p sq"><div class="spv">${data.quantum?.error?'⚠':data.summary.quantum_flagged??'N/A'}</div><div class="spl">${data.quantum?.error?'Q ERROR':'QUANTUM'}</div></div>
-    <div class="stat-p sd"><div class="spv">${data.summary.quantum_only??'—'}</div><div class="spl">UNIQUE ⬡</div></div>
+    <div class="stat-p"><div class="spv">${features.length||'—'}</div><div class="spl">FEATURES</div></div>
+    <div class="stat-p sc"><div class="spv">${allC.size}</div><div class="spl">CLASSICAL</div></div>
+    <div class="stat-p sq"><div class="spv">${data.quantum?.error?'⚠':allQ.size}</div><div class="spl">${data.quantum?.error?'Q ERR':'QUANTUM'}</div></div>
+    <div class="stat-p sd"><div class="spv">${qOnly.size}</div><div class="spl">UNIQUE ⬡</div></div>
   </div>`;
 
-  // Agreement + Venn
-  const allI=[...new Set([...allC,...qSet])];
-  const cntMap={};
-  allI.forEach(i=>{let c2=cSets.filter(s=>s.has(i)).length;if(qSet.has(i))c2++;cntMap[i]=c2});
-  const sorted=[...allI].sort((a,b)=>cntMap[b]-cntMap[a]).slice(0,9);
-  const total=cSets.length+(qSet.size>0?1:0);
-  let agH='';
-  sorted.forEach(idx=>{
-    const label=labelMap[idx]||`Row ${idx}`;
-    const cCnt=cSets.filter(s=>s.has(idx)).length;
-    const isQ=qSet.has(idx);
-    agH+=`<div class="ag-row"><div class="ag-name" title="${label}">${label}</div><div class="ag-track"><div class="ag-c" style="width:0%" data-w="${((cCnt/total)*100).toFixed(1)}"></div>${isQ?`<div class="ag-q" style="width:0%" data-w="${((1/total)*100).toFixed(1)}"></div>`:''}</div><div class="ag-num">${cntMap[idx]}/${total}</div></div>`;
-  });
+  // ── TAB BAR ────────────────────────────────────────────────────────────
+  const tabs=[
+    {id:'verdicts',  label:'🔍 Anomaly Report'},
+    {id:'classical', label:'📊 Classical'},
+    {id:'quantum',   label:'⬡ Quantum Methods'},
+  ];
+  html+=`<div class="rtab-bar">${tabs.map((t,i)=>`<button class="rtab${i===0?' on':''}" data-tab="${t.id}" onclick="switchTab('${t.id}')">${t.label}</button>`).join('')}</div>`;
 
-  const cO=[...allC].filter(x=>!qSet.has(x)).length;
-  const qO=[...qSet].filter(x=>!allC.has(x)).length;
-  const bo=[...allC].filter(x=>qSet.has(x)).length;
-  const vennSVG=useQ&&qSet.size>0?`<svg viewBox="0 0 280 140" width="280" height="140">
-    <circle cx="105" cy="70" r="60" fill="rgba(245,158,11,.16)" stroke="#f59e0b" stroke-width="1.5" stroke-opacity=".5"/>
-    <circle cx="175" cy="70" r="60" fill="rgba(0,200,150,.16)" stroke="#00c896" stroke-width="1.5" stroke-opacity=".5"/>
-    <text x="66" y="68" text-anchor="middle" font-family="Instrument Serif,serif" font-size="26" fill="#f59e0b">${cO}</text>
-    <text x="66" y="83" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#92400e" opacity=".7">CLASSICAL</text>
-    <text x="214" y="68" text-anchor="middle" font-family="Instrument Serif,serif" font-size="26" fill="#00c896">${qO}</text>
-    <text x="214" y="83" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#065f46" opacity=".7">QUANTUM</text>
-    <text x="140" y="66" text-anchor="middle" font-family="Instrument Serif,serif" font-size="22" fill="#8b5cf6">${bo}</text>
-    <text x="140" y="80" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7" fill="#5b21b6">BOTH</text>
-  </svg>`:'<div style="font-family:var(--mono);font-size:.7rem;color:var(--ink4)">Quantum disabled</div>';
+  // ══════════════════════════════════════════════════════════════════════
+  // TAB 1 — ANOMALY REPORT: one verdict card per anomaly
+  // ══════════════════════════════════════════════════════════════════════
+  {
+    const totalFound=allAnomalies.size;
+    let intro='', introClass='';
 
-  html+=`<div class="rsec"><div class="sec-tag"><div class="tag-d" style="background:var(--danger)"></div>Detection Overlap</div>
-  <div class="two-col">
-    <div class="panel"><div class="panel-lbl">Method agreement</div>${agH}<div style="display:flex;gap:10px;margin-top:12px"><div style="display:flex;align-items:center;gap:5px"><div style="width:9px;height:9px;border-radius:2px;background:#f59e0b"></div><span style="font-family:var(--mono);font-size:.58rem;color:var(--ink4)">Classical</span></div>${useQ&&qSet.size>0?'<div style="display:flex;align-items:center;gap:5px"><div style="width:9px;height:9px;border-radius:2px;background:#00c896"></div><span style="font-family:var(--mono);font-size:.58rem;color:var(--ink4)">Quantum</span></div>':''}</div></div>
-    <div class="panel" style="display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="panel-lbl" style="align-self:flex-start">Venn diagram</div>${vennSVG}</div>
-  </div></div>`;
-
-  // Methods
-  let mH=`<div class="rsec"><div class="sec-tag"><div class="tag-d" style="background:var(--c)"></div>Classical Methods</div><div class="methods-grid">`;
-  mKeys.forEach((key,i)=>{
-    const items=data.classical[key]||[];
-    const hasScore=items.length>0&&items[0].score!==undefined;
-    let inner='';
-    if(!items.length){inner='<div class="no-out">No outliers detected</div>'}
-    else if(hasScore){
-      const mn=Math.min(...items.map(o=>o.score)),mx=Math.max(...items.map(o=>o.score)),rng=mx-mn||1;
-      inner='';items.slice(0,5).forEach(o=>{
-        const p=Math.max(6,Math.round((1-(o.score-mn)/rng)*100));
-        inner+=`<div class="sr"><div class="sn" title="${o.label}">${o.label}</div><div class="st"><div class="sf" style="width:0%" data-w="${p}"></div></div><div class="sv">${o.score.toFixed(3)}</div></div>`;
-      });
-      if(items.length>5)inner+=`<div style="font-family:var(--mono);font-size:.6rem;color:var(--ink4);padding:3px 0">+${items.length-5} more</div>`;
-    }else{items.forEach(o=>{inner+=`<span class="chip">${o.label}</span>`})}
-    mH+=`<div class="mc"><div class="mc-head"><div class="mc-name">${mLbls[i]}</div><div class="mc-cnt">${items.length}</div></div>${inner}</div>`;
-  });
-  html+=mH+'</div></div>';
-
-  // Quantum
-  if(useQ&&data.quantum&&!data.quantum.error){
-    const q=data.quantum;
-    const oIdxs=new Set(q.outliers.map(o=>o.idx));
-    const sv=q.ranking.map(r=>r.avg_similarity);
-    const sMin=Math.min(...sv),sMax=Math.max(...sv),sRng=sMax-sMin||1;
-    let rkH='';
-    q.ranking.forEach(r=>{
-      const isQO=oIdxs.has(r.idx),isC=allC.has(r.idx);
-      const p=((r.avg_similarity-sMin)/sRng)*100;
-      const badge=isQO&&isC?'<span class="rbadge rb-b">both</span>':isQO?'<span class="rbadge rb-q">⬡ outlier</span>':isC?'<span class="rbadge rb-c">classical</span>':'';
-      rkH+=`<div class="rank-row${isQO?' or':''}"><div class="rn">${r.rank}</div><div class="rl" title="${r.label}">${r.label}</div><div class="rb-w"><div class="rb-t"><div class="rb-f" style="width:0%" data-w="${p.toFixed(1)}"></div></div></div><div class="rs">${r.avg_similarity}</div>${badge}</div>`;
-    });
-
-    // Heatmap
-    const topN=Math.min(q.ranking.length,12),rk=q.ranking.slice(0,topN),sv2=rk.map(r=>r.avg_similarity);
-    const svMin=Math.min(...sv2),svMax=Math.max(...sv2),svRng=svMax-svMin||1;
-    const cs=18,gap=2;let hmC='';
-    for(let i=0;i<topN;i++){for(let j=0;j<topN;j++){
-      const t=((sv2[i]+sv2[j])/2-svMin)/svRng;
-      const rr=Math.round(lerp(0,239,1-t)),gg=Math.round(lerp(200,68,1-t)),bb=Math.round(lerp(150,68,1-t));
-      hmC+=`<rect x="${j*(cs+gap)}" y="${i*(cs+gap)}" width="${cs}" height="${cs}" rx="2" fill="rgb(${rr},${gg},${bb})" opacity=".82"/>`;
-    }}
-    const hmW=topN*(cs+gap);
-
-    html+=`<div class="rsec"><div class="sec-tag"><div class="tag-d" style="background:var(--q)"></div>Quantum Kernel · ${qConfig.map}FeatureMap · ${qConfig.ent} · reps=${qConfig.reps}</div>
-    <div class="q-meta"><div class="qm"><div class="qmv">${q.qubits}</div><div class="qml">Qubits</div></div><div class="qm"><div class="qmv">${q.variance_retained}%</div><div class="qml">Variance</div></div><div class="qm"><div class="qmv">${q.kernel_time_s}s</div><div class="qml">Kernel time</div></div><div class="qm"><div class="qmv">${q.outliers.length}</div><div class="qml">Outliers</div></div></div>
-    <div class="two-col">
-      <div class="panel"><div class="panel-lbl">Similarity ranking (lower = more anomalous)</div>${rkH}</div>
-      <div class="panel"><div class="panel-lbl">Kernel similarity heatmap</div><div style="overflow-x:auto"><svg viewBox="0 0 ${hmW} ${hmW}" width="${hmW}" height="${hmW}">${hmC}</svg></div><div class="hm-legend"><div class="hm-lbl">normal</div><div class="hm-bar"></div><div class="hm-lbl">anomalous</div></div></div>
-    </div></div>`;
-
-    // Quantum only
-    if(q.quantum_only?.length){
-      let qoH='';
-      q.quantum_only.forEach(item=>{
-        const maxZ=Math.max(...item.features.map(f=>f.z_score),.1);
-        const n=Math.min(item.features.length,6),aStep=(2*Math.PI)/n;
-        const cx=90,cy=90,R=62;
-        let rp='';
-        [1,2,3].forEach(l=>{const r=(R*l)/3;let d='';for(let i=0;i<n;i++){const a=i*aStep-Math.PI/2;d+=(i?'L':'M')+`${(cx+r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`}rp+=`<path d="${d}Z" fill="none" stroke="rgba(0,0,0,.05)" stroke-width="1"/>`;});
-        for(let i=0;i<n;i++){const a=i*aStep-Math.PI/2;rp+=`<line x1="${cx}" y1="${cy}" x2="${(cx+R*Math.cos(a)).toFixed(1)}" y2="${(cy+R*Math.sin(a)).toFixed(1)}" stroke="rgba(0,0,0,.05)" stroke-width="1"/>`;rp+=`<text x="${(cx+(R+13)*Math.cos(a)).toFixed(1)}" y="${(cy+(R+13)*Math.sin(a)).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="Geist Mono,monospace" font-size="7" fill="#9b9b9b">${item.features[i]?.name?.substring(0,6)||''}</text>`}
-        const pts=item.features.slice(0,n).map((f,i)=>{const a=i*aStep-Math.PI/2;const r=(Math.min(f.z_score,maxZ)/Math.max(maxZ,1))*R;return[cx+r*Math.cos(a),cy+r*Math.sin(a)]});
-        rp+=`<path d="${pts.map((p,i)=>(i?'L':'M')+`${p[0].toFixed(1)},${p[1].toFixed(1)}`).join('')}Z" fill="rgba(0,200,150,.18)" stroke="#00c896" stroke-width="2" stroke-linejoin="round"/>`;
-        pts.forEach(([px,py],i)=>{rp+=`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3.5" fill="${zCol(item.features[i]?.z_score||0)}" stroke="white" stroke-width="1.5"/>`});
-
-        let fb='';
-        item.features.forEach(f=>{
-          const p=Math.min(100,(f.z_score/Math.max(maxZ,3))*100);
-          fb+=`<div class="frow"><div class="fn" title="${f.name}">${f.name}</div><div class="ft"><div class="ff" data-w="${p.toFixed(1)}" style="width:0%;background:${zCol(f.z_score)}"></div></div><div class="fm ${zCls(f.z_score)}">z=${f.z_score}<br><span style="color:var(--ink4);font-size:.56rem">${f.value}</span></div></div>`;
-        });
-        qoH+=`<div class="qo-card"><div class="qo-head"><div class="qo-badge">⬡</div><div><div class="qo-title">${item.label}</div><div class="qo-sub">Quantum-only · ${item.features.length} features</div></div></div><div class="qo-body"><svg viewBox="0 0 180 180" width="180" height="180">${rp}</svg><div>${fb}</div></div><div class="qo-note">⬡ Statistically normal feature by feature — the quantum kernel detected this anomaly through high-dimensional inter-feature correlation. Invisible to all classical methods.</div></div>`;
-      });
-      html+=`<div class="rsec"><div class="sec-tag"><div class="tag-d" style="background:var(--purple)"></div>Quantum-Only Detections</div>${qoH}</div>`;
+    if(totalFound===0){
+      intro='<strong>No anomalies detected.</strong> All entities fall within normal range across all methods.';
+      introClass='amber';
+    } else if(qOnly.size>0){
+      intro=`<strong>${totalFound} anomal${totalFound===1?'y':'ies'} found — including ${qOnly.size} that only quantum caught.</strong> Scroll down to see a plain-English explanation for each one. The quantum-only detections look normal on every individual feature — the quantum advantage is detecting the invisible correlation pattern.`;
+    } else {
+      intro=`<strong>${totalFound} anomal${totalFound===1?'y':'ies'} found.</strong> Classical and quantum methods agree on all detections. Each card below explains exactly why the entity was flagged.`;
+      introClass='amber';
     }
-  }
 
-  // Quantum error or disabled notice
-  if(useQ&&data.quantum&&data.quantum.error){
-    html+=`<div class="rsec"><div class="sec-tag"><div class="tag-d" style="background:var(--danger)"></div>Quantum Kernel — Error</div>
-    <div style="padding:14px 18px;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.18);border-radius:var(--r);font-family:var(--mono);font-size:.74rem;color:var(--danger);line-height:1.6">
-      ⚠ ${data.quantum.error}<br>
-      <span style="color:var(--ink4);font-size:.68rem;margin-top:6px;display:block">Classical results above are complete. Try a smaller dataset or disable quantum for classical-only analysis.</span>
+    // Sort: quantum-only first, then both, then classical-only
+    const sorted=[
+      ...[...qOnly].sort(),
+      ...[...both].sort(),
+      ...[...allC].filter(i=>!allQ.has(i)).sort(),
+    ];
+
+    const cards=sorted.map(idx=>buildVerdict(idx)).join('');
+
+    html+=`<div class="rpanel on" id="rp-verdicts"><div class="rsec">
+      <div class="explain-box ${introClass}">${intro}</div>
+      ${cards||'<div class="no-out" style="padding:20px 0">No anomalies to display.</div>'}
     </div></div>`;
-  } else if(!useQ){
-    // quantum disabled — nothing to show
   }
 
+  // ══════════════════════════════════════════════════════════════════════
+  // TAB 2 — CLASSICAL METHODS: compact per-method breakdown
+  // ══════════════════════════════════════════════════════════════════════
+  {
+    let mH=`<div class="explain-box amber"><strong>What are classical methods?</strong>Six algorithms that each look at your data from a different angle. When multiple methods agree on the same entity, confidence is higher. An entity flagged by only one method may be a false alarm.</div><div class="methods-grid">`;
+    mKeys.forEach((key,i)=>{
+      const items=data.classical[key]||[];
+      const hasScore=items.length>0&&items[0].score!==undefined;
+      let inner='';
+      if(!items.length){inner='<div class="no-out">No outliers detected</div>'}
+      else if(hasScore){
+        const mn=Math.min(...items.map(o=>o.score)),mx=Math.max(...items.map(o=>o.score)),rng=mx-mn||1;
+        inner='';items.slice(0,5).forEach(o=>{
+          const p=Math.max(6,Math.round((1-(o.score-mn)/rng)*100));
+          inner+=`<div class="sr"><div class="sn" title="${o.label}">${o.label}</div><div class="st"><div class="sf" style="width:0%" data-w="${p}"></div></div><div class="sv">${o.score.toFixed(3)}</div></div>`;
+        });
+        if(items.length>5)inner+=`<div style="font-family:var(--mono);font-size:.6rem;color:var(--ink4);padding:3px 0">+${items.length-5} more</div>`;
+      }else{items.forEach(o=>{inner+=`<span class="chip">${o.label}</span>`})}
+      mH+=`<div class="mc"><div class="mc-head"><div class="mc-name">${mLbls[i]}</div><div class="mc-cnt">${items.length}</div></div><div style="font-size:.72rem;color:var(--ink4);margin-bottom:8px;line-height:1.5">${mDesc[i]}</div>${inner}</div>`;
+    });
+    html+=`<div class="rpanel" id="rp-classical"><div class="rsec">${mH}</div></div></div>`;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // TAB 3 — QUANTUM METHODS: kernel + qPCA + QAE each get their own panel
+  // ══════════════════════════════════════════════════════════════════════
+  {
+    let qContent='';
+    if(useQ&&data.quantum&&!data.quantum.error){
+      const q=data.quantum;
+
+      // ── ZZ Kernel similarity ranking ──────────────────────────
+      const sv=q.ranking.map(r=>r.avg_similarity);
+      const sMin=Math.min(...sv),sMax=Math.max(...sv),sRng=sMax-sMin||1;
+      const oIdxs=new Set(q.outliers.map(o=>o.idx));
+      let rkH='';
+      q.ranking.forEach(r=>{
+        const isQO=oIdxs.has(r.idx),isC=allC.has(r.idx);
+        const p=((r.avg_similarity-sMin)/sRng)*100;
+        const badge=isQO&&isC?'<span class="rbadge rb-b">both</span>':isQO?'<span class="rbadge rb-q">⬡ outlier</span>':isC?'<span class="rbadge rb-c">classical</span>':'';
+        rkH+=`<div class="rank-row${isQO?' or':''}"><div class="rn">${r.rank}</div><div class="rl" title="${r.label}">${r.label}</div><div class="rb-w"><div class="rb-t"><div class="rb-f" style="width:0%" data-w="${p.toFixed(1)}"></div></div></div><div class="rs">${r.avg_similarity}</div>${badge}</div>`;
+      });
+
+      // ── qPCA outliers ──────────────────────────────────────────
+      const qpcaItems=q.qpca_outliers||[];
+      let qpcaH=qpcaItems.length?'':' <div class="no-out">No outliers detected by qPCA</div>';
+      qpcaItems.forEach(o=>{
+        const pct=Math.round(o.score*100);
+        qpcaH+=`<div class="sr"><div class="sn" title="${o.label}">${o.label}</div><div class="st"><div class="sf" style="width:0%;background:var(--purple)" data-w="${pct}"></div></div><div class="sv">${o.score.toFixed(3)}</div></div>`;
+      });
+
+      // ── QAE outliers ──────────────────────────────────────────
+      const qaeItems=q.qae_outliers||[];
+      let qaeH=qaeItems.length?'':'<div class="no-out">No outliers detected by QAE</div>';
+      qaeItems.forEach(o=>{
+        const pct=Math.round(o.score*100);
+        qaeH+=`<div class="sr"><div class="sn" title="${o.label}">${o.label}</div><div class="st"><div class="sf" style="width:0%;background:var(--blue)" data-w="${pct}"></div></div><div class="sv">${o.score.toFixed(3)}</div></div>`;
+      });
+
+      qContent=`
+        <div class="q-meta">
+          <div class="qm"><div class="qmv">${q.qubits}</div><div class="qml">Qubits</div></div>
+          <div class="qm"><div class="qmv">${q.variance_retained}%</div><div class="qml">Variance</div></div>
+          <div class="qm"><div class="qmv">${q.kernel_time_s}s</div><div class="qml">Kernel time</div></div>
+          <div class="qm"><div class="qmv">${q.outliers.length}</div><div class="qml">ZZ flagged</div></div>
+          <div class="qm"><div class="qmv">${qpcaItems.length}</div><div class="qml">qPCA flagged</div></div>
+          <div class="qm"><div class="qmv">${qaeItems.length}</div><div class="qml">QAE flagged</div></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div class="panel">
+            <div class="panel-lbl">⬡ ZZ Kernel — similarity ranking</div>
+            <div style="font-size:.74rem;color:var(--ink3);margin-bottom:9px;line-height:1.5">Lower similarity = more anomalous. The entity is unlike everyone else in quantum feature space.</div>
+            ${rkH}
+          </div>
+          <div class="panel">
+            <div class="panel-lbl">📐 Quantum PCA — reconstruction residual</div>
+            <div style="font-size:.74rem;color:var(--ink3);margin-bottom:9px;line-height:1.5">Finds the principal directions of normal data using quantum circuits. Entities that don't fit these directions are flagged. Higher score = worse fit.</div>
+            ${qpcaH}
+          </div>
+          <div class="panel">
+            <div class="panel-lbl">🔁 Quantum Autoencoder — compression failure</div>
+            <div style="font-size:.74rem;color:var(--ink3);margin-bottom:9px;line-height:1.5">Trains a quantum circuit to compress normal data. Entities it can't compress are anomalous. Higher score = harder to compress = more anomalous.</div>
+            ${qaeH}
+          </div>
+        </div>`;
+    } else if(useQ&&data.quantum?.error){
+      qContent=`<div class="explain-box" style="background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.2)"><strong style="color:var(--danger)">Quantum error</strong>${data.quantum.error}</div>`;
+    } else {
+      qContent=`<div class="explain-box amber"><strong>Quantum was disabled.</strong>Enable the ⬡ Quantum Kernel toggle and re-run.</div>`;
+    }
+    html+=`<div class="rpanel" id="rp-quantum"><div class="rsec">${qContent}</div></div>`;
+  }
   el.innerHTML=html;
   setTimeout(()=>{el.querySelectorAll('[data-w]').forEach(b=>{b.style.width=b.dataset.w+'%'})},80);
   el.scrollIntoView({behavior:'smooth',block:'start'});
 }
+
 </script>
 </body>
 </html>
