@@ -20,128 +20,6 @@ app = FastAPI(title="Catalyst")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 executor = ThreadPoolExecutor(max_workers=2)
 
-
-# ══════════════════════════════════════════════════════════════════════════
-#  QUANTUM METHODS — QuantumPCAResidual & QuantumAutoencoder
-#  Inlined so no extra package install is needed beyond existing deps.
-# ══════════════════════════════════════════════════════════════════════════
-
-class _MagnitudePreservingEncoder:
-    """Standardize -> (optional PCA) -> unit-norm amplitude encoding."""
-    def __init__(self, n_qubits):
-        self.n_qubits = n_qubits
-        self.dim = 2 ** n_qubits
-        self.usable = self.dim - 1
-
-    def fit(self, X):
-        from sklearn.preprocessing import StandardScaler as SS
-        self.sc_ = SS().fit(X)
-        Xs = self.sc_.transform(X)
-        if X.shape[1] > self.usable:
-            self.pca_ = PCA(n_components=self.usable).fit(Xs)
-            Xr = self.pca_.transform(Xs)
-        else:
-            self.pca_ = None
-            Xr = Xs
-        self.r_ = float(np.linalg.norm(Xr, axis=1).max()) + 1e-9
-        return self
-
-    def transform(self, X):
-        Xs = self.sc_.transform(X)
-        Xr = self.pca_.transform(Xs) if self.pca_ is not None else Xs
-        out = np.zeros((Xr.shape[0], self.dim))
-        nf = Xr.shape[1]
-        out[:, :nf] = Xr / self.r_
-        norms = np.linalg.norm(out[:, :nf], axis=1, keepdims=True)
-        out[:, -1] = np.sqrt(np.clip(1.0 - (norms**2).ravel(), 0, 1))
-        return out
-
-
-class _QuantumPCAResidual:
-    """Variational qPCA residual anomaly scorer (Lloyd et al. 2014)."""
-    name = "QuantumPCA"
-
-    def __init__(self, n_qubits=3, n_components=2, reps=2, max_iter=60, n_restarts=2, seed=42):
-        self.n_qubits = n_qubits; self.n_components = n_components
-        self.reps = reps; self.max_iter = max_iter
-        self.n_restarts = n_restarts; self.seed = seed
-
-    def fit_score(self, X):
-        try:
-            from qiskit.circuit.library import efficient_su2
-            from qiskit.quantum_info import Statevector
-            from scipy.optimize import minimize as sp_min
-            enc = _MagnitudePreservingEncoder(self.n_qubits).fit(X)
-            Xa = enc.transform(X)
-            rho = (Xa.T @ Xa) / Xa.shape[0]
-            ansatz = efficient_su2(num_qubits=self.n_qubits, reps=self.reps, entanglement="linear")
-            n_p = ansatz.num_parameters
-            rng = np.random.default_rng(self.seed)
-            eigenvecs, rho_def = [], rho.copy()
-            nc = min(self.n_components, 2 ** self.n_qubits)
-            for _ in range(nc):
-                best_val, best_v = np.inf, None
-                for _ in range(self.n_restarts):
-                    x0 = rng.uniform(0, 2 * np.pi, n_p)
-                    def loss(th, rd=rho_def, ans=ansatz):
-                        sv = Statevector(ans.assign_parameters(th)).data
-                        return -float(np.real(sv.conj() @ rd @ sv))
-                    res = sp_min(loss, x0, method="COBYLA", options={"maxiter": self.max_iter, "rhobeg": 0.5})
-                    if res.fun < best_val:
-                        best_val = res.fun
-                        best_v = Statevector(ansatz.assign_parameters(res.x)).data
-                eigenvecs.append(best_v)
-                rho_def -= best_val * np.outer(best_v, best_v.conj())
-            V = np.column_stack([v.real for v in eigenvecs])
-            residuals = np.array([float(np.linalg.norm(x - V @ (V.T @ x))**2) for x in Xa])
-            mn, mx = residuals.min(), residuals.max()
-            return (residuals - mn) / (mx - mn + 1e-9)
-        except Exception:
-            return np.zeros(len(X))
-
-
-class _QuantumAutoencoder:
-    """Romero-style QAE trash-fidelity anomaly scorer."""
-    name = "QuantumAutoencoder"
-
-    def __init__(self, n_qubits=3, n_trash=1, reps=2, max_iter=60, n_restarts=2, max_train=60, seed=42):
-        self.n_qubits = n_qubits; self.n_trash = n_trash; self.reps = reps
-        self.max_iter = max_iter; self.n_restarts = n_restarts
-        self.max_train = max_train; self.seed = seed
-
-    def fit_score(self, X):
-        try:
-            from qiskit.circuit.library import real_amplitudes
-            from qiskit.quantum_info import Statevector, partial_trace
-            from scipy.optimize import minimize as sp_min
-            enc = _MagnitudePreservingEncoder(self.n_qubits).fit(X)
-            Xa = enc.transform(X)
-            rng = np.random.default_rng(self.seed)
-            n_tr = min(self.max_train, len(Xa))
-            Xa_tr = Xa[rng.choice(len(Xa), n_tr, replace=False)]
-            ansatz = real_amplitudes(self.n_qubits, reps=self.reps, entanglement="linear")
-            n_p = ansatz.num_parameters
-            keep = list(range(self.n_qubits - self.n_trash))
-            def trash_fids(theta, Xb):
-                bound = ansatz.assign_parameters(theta)
-                fids = np.empty(len(Xb))
-                for i, x in enumerate(Xb):
-                    rho_t = partial_trace(Statevector(x).evolve(bound), keep)
-                    fids[i] = float(np.real(rho_t.data[0, 0]))
-                return fids
-            best_theta, best_val = None, np.inf
-            for _ in range(self.n_restarts):
-                x0 = rng.uniform(0, 2 * np.pi, n_p)
-                res = sp_min(lambda th: 1.0 - float(trash_fids(th, Xa_tr).mean()),
-                             x0, method="COBYLA", options={"maxiter": self.max_iter, "rhobeg": 0.5})
-                if res.fun < best_val:
-                    best_val, best_theta = res.fun, res.x
-            scores = 1.0 - trash_fids(best_theta, Xa)
-            mn, mx = scores.min(), scores.max()
-            return (scores - mn) / (mx - mn + 1e-9)
-        except Exception:
-            return np.zeros(len(X))
-
 # ── Domain Detection ─────────────────────────────────────────────
 DOMAINS = {
     "traffic": {
@@ -264,7 +142,143 @@ def detect_domain(columns):
 def sse(event, data):
     return f"event: {event}\ndata: {json.dumps(data)}\n\n"
 
-def run_detection(df, use_quantum, emit, feature_map_type="ZZ", entanglement="linear", reps=2):
+
+# ── Input Type Preprocessing ──────────────────────────────────────
+
+def preprocess_image_csv(df: pd.DataFrame, emit) -> pd.DataFrame:
+    """
+    Image feature CSV: each row = one image sample.
+    Expected columns: an optional label/id column, then numeric feature columns
+    representing per-image descriptors (pixel stats, color histograms, texture
+    descriptors, bounding box properties, color-coded attributes, etc.).
+
+    If a 'filename' or 'image_id' column is present it becomes the label.
+    All numeric columns are used as feature vectors fed into the quantum pipeline.
+    """
+    emit("progress", {"pct": 3, "label": "Detected INPUT TYPE: Image features — preprocessing..."})
+
+    # Try to identify a natural label column (filename, image_id, id, name)
+    label_candidates = [c for c in df.columns if c.lower() in
+                        ("filename","image_id","image","id","name","label","class","file")]
+    if not label_candidates:
+        # Fall back to first non-numeric column
+        label_candidates = [c for c in df.columns if df[c].dtype == object]
+
+    if label_candidates:
+        label_col = label_candidates[0]
+        # Rename so downstream code picks it up as the label
+        df = df.rename(columns={label_col: label_col})
+    else:
+        # Synthesize image IDs
+        df = df.copy()
+        df.insert(0, "image_id", [f"IMG-{i:04d}" for i in range(len(df))])
+
+    emit("progress", {"pct": 6, "label": f"Image CSV: {len(df)} images × {len(df.select_dtypes(include='number').columns)} feature dims"})
+    return df
+
+
+def preprocess_graph_csv(df: pd.DataFrame, emit) -> pd.DataFrame:
+    """
+    Graph / network CSV: rows represent edges with columns like:
+      source, target, weight   (edge list format)
+    OR rows represent nodes with columns like:
+      node_id, feature1, feature2, ...  (node feature format)
+
+    For edge lists: convert to a node-level feature matrix using:
+      - degree (weighted / unweighted)
+      - average neighbor weight
+      - clustering coefficient proxy
+      - pagerank-style score
+    These node-level features are then fed into the quantum anomaly pipeline
+    to detect bad actors / anomalous nodes (as in QAOA MaxCut framing).
+
+    For node-feature format: pass through as-is.
+    """
+    emit("progress", {"pct": 3, "label": "Detected INPUT TYPE: Graph/Network — building node feature matrix..."})
+
+    cols_lower = [c.lower() for c in df.columns]
+
+    # Detect edge list format
+    is_edge_list = any(c in cols_lower for c in ("source","target","src","dst","from","to"))
+
+    if is_edge_list:
+        # Map column names
+        src_col = next((df.columns[i] for i, c in enumerate(cols_lower) if c in ("source","src","from")), None)
+        dst_col = next((df.columns[i] for i, c in enumerate(cols_lower) if c in ("target","dst","to")), None)
+        wt_col  = next((df.columns[i] for i, c in enumerate(cols_lower) if c in ("weight","w","value","sim")), None)
+
+        if src_col is None or dst_col is None:
+            # Can't find edge columns — fall back to treating as tabular
+            emit("progress", {"pct": 6, "label": "Could not parse graph edges — treating as tabular data"})
+            return df
+
+        edges = df[[src_col, dst_col]].copy()
+        weights = df[wt_col].values.astype(float) if wt_col else np.ones(len(df))
+        weights = np.nan_to_num(weights, nan=1.0)
+
+        all_nodes = sorted(set(edges[src_col].tolist()) | set(edges[dst_col].tolist()))
+        node_idx = {n: i for i, n in enumerate(all_nodes)}
+        N = len(all_nodes)
+
+        # Build adjacency info
+        degree = np.zeros(N)
+        weighted_degree = np.zeros(N)
+        neighbor_weights = {i: [] for i in range(N)}
+
+        for (_, row), w in zip(edges.iterrows(), weights):
+            s, t = node_idx[row[src_col]], node_idx[row[dst_col]]
+            degree[s] += 1
+            degree[t] += 1
+            weighted_degree[s] += w
+            weighted_degree[t] += w
+            neighbor_weights[s].append(w)
+            neighbor_weights[t].append(w)
+
+        avg_neighbor_wt = np.array([
+            np.mean(neighbor_weights[i]) if neighbor_weights[i] else 0.0
+            for i in range(N)
+        ])
+        max_neighbor_wt = np.array([
+            np.max(neighbor_weights[i]) if neighbor_weights[i] else 0.0
+            for i in range(N)
+        ])
+        # Simple PageRank proxy: weighted degree normalized
+        pr_proxy = weighted_degree / (weighted_degree.sum() + 1e-9)
+
+        node_df = pd.DataFrame({
+            "node_id": all_nodes,
+            "degree": degree,
+            "weighted_degree": weighted_degree,
+            "avg_neighbor_weight": avg_neighbor_wt,
+            "max_neighbor_weight": max_neighbor_wt,
+            "pagerank_proxy": pr_proxy,
+        })
+
+        emit("progress", {"pct": 6, "label": f"Graph: {N} nodes · {len(df)} edges → node feature matrix built"})
+        return node_df
+
+    else:
+        # Node-feature format — pass through
+        emit("progress", {"pct": 6, "label": f"Graph node-feature format: {len(df)} nodes × {len(df.select_dtypes(include='number').columns)} features"})
+        return df
+
+
+def preprocess_input(df: pd.DataFrame, input_type: str, emit) -> pd.DataFrame:
+    """Route to the right preprocessor based on input_type."""
+    if input_type == "image":
+        return preprocess_image_csv(df, emit)
+    elif input_type == "graph":
+        return preprocess_graph_csv(df, emit)
+    else:
+        # Tabular: pass straight through
+        emit("progress", {"pct": 3, "label": "INPUT TYPE: Tabular CSV — reading numeric features..."})
+        return df
+
+
+def run_detection(df, use_quantum, emit, feature_map_type="ZZ", entanglement="linear", reps=2, input_type="tabular"):
+    # Apply input-type preprocessing before any analysis
+    df = preprocess_input(df, input_type, emit)
+
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     non_numeric = [c for c in df.columns if c not in numeric_cols]
     label_col = non_numeric[0] if non_numeric else None
@@ -391,31 +405,7 @@ def run_detection(df, use_quantum, emit, feature_map_type="ZZ", entanglement="li
             avg_sim = np.mean(K, axis=1)
             ranked_local = np.argsort(avg_sim).tolist()
             ranked = [int(sample_idx[i]) for i in ranked_local]
-            quantum_only_kernel = set(qsvm_outliers) - all_classical
-
-            # ── QuantumPCA ──────────────────────────────────────────────
-            emit("progress", {"pct": 96, "label": "Running Quantum PCA residual..."})
-            n_q = min(3, len(numeric_cols), n_q_samples - 1)
-            qpca = _QuantumPCAResidual(n_qubits=n_q, n_components=2, reps=2,
-                                        max_iter=40, n_restarts=1)
-            qpca_scores = qpca.fit_score(X_q_input)
-            qpca_thresh = float(np.percentile(qpca_scores, 100 * (1 - contamination)))
-            qpca_outliers_local = [int(i) for i in range(len(qpca_scores)) if qpca_scores[i] >= qpca_thresh]
-            qpca_outliers = [int(sample_idx[i]) for i in qpca_outliers_local]
-
-            # ── QuantumAutoencoder ──────────────────────────────────────
-            emit("progress", {"pct": 97, "label": "Running Quantum Autoencoder..."})
-            qae = _QuantumAutoencoder(n_qubits=n_q, n_trash=1, reps=2,
-                                       max_iter=40, n_restarts=1,
-                                       max_train=min(40, n_q_samples))
-            qae_scores = qae.fit_score(X_q_input)
-            qae_thresh = float(np.percentile(qae_scores, 100 * (1 - contamination)))
-            qae_outliers_local = [int(i) for i in range(len(qae_scores)) if qae_scores[i] >= qae_thresh]
-            qae_outliers = [int(sample_idx[i]) for i in qae_outliers_local]
-
-            # ── Unified quantum outlier set ─────────────────────────────
-            all_quantum = set(qsvm_outliers) | set(qpca_outliers) | set(qae_outliers)
-            quantum_only = all_quantum - all_classical
+            quantum_only = set(qsvm_outliers) - all_classical
 
             def get_feats(idx):
                 feats = []
@@ -452,12 +442,6 @@ def run_detection(df, use_quantum, emit, feature_map_type="ZZ", entanglement="li
                               "also_classical": ranked[r] in all_classical}
                              for r in range(min(10, len(ranked)))],
                 "quantum_only": qonly_details,
-                # ── New: per-method quantum results ──────────────────────
-                "qpca_outliers": [{"idx": i, "label": get_label(i), "score": round(float(qpca_scores[qpca_outliers_local[j]]), 4)}
-                                   for j, i in enumerate(qpca_outliers)],
-                "qae_outliers":  [{"idx": i, "label": get_label(i), "score": round(float(qae_scores[qae_outliers_local[j]]), 4)}
-                                   for j, i in enumerate(qae_outliers)],
-                "all_quantum_unique": [{"idx": i, "label": get_label(i)} for i in sorted(all_quantum)],
             }
         except Exception as e:
             traceback.print_exc()
@@ -473,12 +457,13 @@ def run_detection(df, use_quantum, emit, feature_map_type="ZZ", entanglement="li
             "domain_icon": domain_cfg["icon"],
             "domain_label": domain_cfg["label"],
             "domain_description": domain_cfg["description"],
+            "input_type": input_type,
         },
         "classical": classical,
         "quantum": quantum,
         "summary": {
             "classical_unique": len(all_classical),
-            "quantum_flagged": len(all_quantum) if quantum and "all_quantum_unique" in quantum else (len(quantum["outliers"]) if quantum and "outliers" in quantum else None),
+            "quantum_flagged": len(quantum["outliers"]) if quantum and "outliers" in quantum else None,
             "quantum_only": len(quantum["quantum_only"]) if quantum and "quantum_only" in quantum else None,
         }
     })
@@ -487,7 +472,8 @@ def run_detection(df, use_quantum, emit, feature_map_type="ZZ", entanglement="li
 
 @app.post("/analyze-stream")
 async def analyze_stream(file: UploadFile = File(...), quantum: bool = True,
-                         feature_map: str = "ZZ", entanglement: str = "linear", reps: int = 2):
+                         feature_map: str = "ZZ", entanglement: str = "linear",
+                         reps: int = 2, input_type: str = "tabular"):
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(400, "Please upload a .csv file.")
     contents = await file.read()
@@ -496,13 +482,17 @@ async def analyze_stream(file: UploadFile = File(...), quantum: bool = True,
     except Exception as e:
         raise HTTPException(400, f"Could not parse CSV: {e}")
 
+    # Validate input_type
+    if input_type not in ("tabular", "image", "graph"):
+        input_type = "tabular"
+
     queue = asyncio.Queue()
     def emit(event, data): queue.put_nowait(sse(event, data))
 
     async def run_bg():
         loop = asyncio.get_event_loop()
         try:
-            await loop.run_in_executor(executor, run_detection, df, quantum, emit, feature_map, entanglement, reps)
+            await loop.run_in_executor(executor, run_detection, df, quantum, emit, feature_map, entanglement, reps, input_type)
         except Exception as e:
             queue.put_nowait(sse("error", {"message": str(e)}))
         finally:
@@ -527,7 +517,8 @@ async def root():
 
 @app.post("/analyze")
 async def analyze(file: UploadFile = File(...), quantum: bool = True,
-                  feature_map: str = "ZZ", entanglement: str = "linear", reps: int = 2):
+                  feature_map: str = "ZZ", entanglement: str = "linear",
+                  reps: int = 2, input_type: str = "tabular"):
     """Synchronous endpoint for frontends that don't use SSE streaming."""
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(400, "Please upload a .csv file.")
@@ -536,6 +527,9 @@ async def analyze(file: UploadFile = File(...), quantum: bool = True,
         df = pd.read_csv(io.BytesIO(contents))
     except Exception as e:
         raise HTTPException(400, f"Could not parse CSV: {e}")
+
+    if input_type not in ("tabular", "image", "graph"):
+        input_type = "tabular"
 
     collected = {}
     errors = []
@@ -548,7 +542,7 @@ async def analyze(file: UploadFile = File(...), quantum: bool = True,
 
     try:
         loop = asyncio.get_event_loop()
-        await loop.run_in_executor(executor, run_detection, df, quantum, emit, feature_map, entanglement, reps)
+        await loop.run_in_executor(executor, run_detection, df, quantum, emit, feature_map, entanglement, reps, input_type)
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(500, str(e))
@@ -559,233 +553,3 @@ async def analyze(file: UploadFile = File(...), quantum: bool = True,
         raise HTTPException(500, "Analysis produced no results")
 
     return JSONResponse(collected)
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  IMAGE ANALYSIS ENDPOINT
-#  Extracts 32 numeric features per image (color histograms + texture stats)
-#  then runs the same detection pipeline as CSV mode.
-# ══════════════════════════════════════════════════════════════════════════════
-
-@app.post("/analyze-images")
-async def analyze_images(
-    files: list[UploadFile] = File(...),
-    quantum: bool = True,
-    feature_map: str = "ZZ",
-    entanglement: str = "linear",
-    reps: int = 2,
-):
-    if len(files) < 2:
-        raise HTTPException(400, "Upload at least 2 images to compare.")
-    if len(files) > 20:
-        raise HTTPException(400, "Maximum 20 images per request.")
-
-    try:
-        from PIL import Image as PILImage
-    except ImportError:
-        raise HTTPException(500, "Pillow not installed — add 'Pillow' to requirements.txt")
-
-    rows = []
-    for f in files:
-        data = await f.read()
-        try:
-            img = PILImage.open(io.BytesIO(data)).convert("RGB").resize((64, 64))
-        except Exception:
-            raise HTTPException(400, f"Could not read image: {f.filename}")
-
-        arr = np.array(img, dtype=np.float32) / 255.0  # (64,64,3)
-
-        feats = {}
-        # Colour histograms (8 bins per channel = 24 features)
-        for ci, ch in enumerate(["r", "g", "b"]):
-            hist, _ = np.histogram(arr[:, :, ci], bins=8, range=(0, 1))
-            hist = hist.astype(float) / hist.sum()
-            for bi, v in enumerate(hist):
-                feats[f"{ch}_h{bi}"] = round(float(v), 5)
-
-        # Texture: mean, std, contrast per channel (9 features)
-        for ci, ch in enumerate(["r", "g", "b"]):
-            ch_arr = arr[:, :, ci]
-            feats[f"{ch}_mean"]     = round(float(ch_arr.mean()), 5)
-            feats[f"{ch}_std"]      = round(float(ch_arr.std()),  5)
-            feats[f"{ch}_contrast"] = round(float(ch_arr.max() - ch_arr.min()), 5)
-
-        # Brightness & saturation (2 features)
-        gray = 0.299 * arr[:,:,0] + 0.587 * arr[:,:,1] + 0.114 * arr[:,:,2]
-        feats["brightness"] = round(float(gray.mean()), 5)
-        feats["saturation"] = round(float(
-            (arr.max(axis=2) - arr.min(axis=2)).mean()
-        ), 5)
-
-        feats["_label"] = f.filename
-        rows.append(feats)
-
-    df = pd.DataFrame(rows)
-    label_col = "_label"
-    # rename for run_detection compatibility
-    df.rename(columns={"_label": label_col}, inplace=True)
-
-    collected = {}
-    errors = []
-
-    def emit(event, d):
-        if event == "result":
-            collected.update(d)
-        elif event == "error":
-            errors.append(d.get("message", ""))
-
-    try:
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(
-            executor, run_detection, df, quantum, emit, feature_map, entanglement, reps
-        )
-    except Exception as e:
-        traceback.print_exc()
-        raise HTTPException(500, str(e))
-
-    if errors:
-        raise HTTPException(500, errors[0])
-    if not collected:
-        raise HTTPException(500, "Analysis produced no results")
-
-    return JSONResponse(collected)
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  SYNTHETIC DEMO DATASET ENDPOINT
-#  Generates realistic datasets with a single (or few) planted anomalies.
-#  Used by the Demo tab on the frontend.
-# ══════════════════════════════════════════════════════════════════════════════
-
-SCENARIOS = {
-    "vehicle": {
-        "n_normal": 49,
-        "features": {
-            "speed_kmh":             (85,  8),
-            "weight_kg":             (3200, 180),
-            "radar_cross_section_m2":(2.1, 0.25),
-            "accel_variance":        (0.42, 0.06),
-            "lane_deviation_m":      (0.38, 0.05),
-            "reaction_time_s":       (0.72, 0.09),
-            "material_density":      (7.85, 0.30),
-        },
-        "outliers": [{
-            "speed_kmh":             85.1,   # normal speed
-            "weight_kg":             2950,   # slightly lighter (sensor array)
-            "radar_cross_section_m2":3.8,    # elevated RCS
-            "accel_variance":        0.004,  # near-zero (autonomous precision)
-            "lane_deviation_m":      0.02,   # machine precision steering
-            "reaction_time_s":       0.08,   # sub-human latency
-            "material_density":      6.1,    # carbon-fibre composite
-        }],
-        "id_col": "vehicle_id",
-        "id_prefix": "VH",
-    },
-    "soldier": {
-        "n_normal": 79,
-        "features": {
-            "heart_rate_bpm":   (78,  9),
-            "skin_temp_c":      (36.6, 0.4),
-            "movement_speed":   (1.4,  0.3),
-            "signal_strength":  (0.82, 0.07),
-            "battery_pct":      (74,   12),
-            "comms_latency_ms": (48,   8),
-        },
-        "outliers": [{
-            "heart_rate_bpm":   31,    # abnormally low — device spoofing
-            "skin_temp_c":      36.7,
-            "movement_speed":   1.3,
-            "signal_strength":  0.81,
-            "battery_pct":      73,
-            "comms_latency_ms": 312,   # extreme latency spike
-        }],
-        "id_col": "asset_id",
-        "id_prefix": "ASSET",
-    },
-    "network": {
-        "n_normal": 98,
-        "features": {
-            "bytes_sent":     (4200,  800),
-            "bytes_recv":     (8100,  1200),
-            "duration_s":     (2.1,   0.6),
-            "packets":        (38,    7),
-            "unique_ports":   (3,     1),
-            "retransmits":    (0.8,   0.4),
-            "ttl_variance":   (2.1,   0.5),
-            "payload_entropy":(4.8,   0.3),
-        },
-        "outliers": [
-            {"bytes_sent":48200,"bytes_recv":320,"duration_s":0.12,"packets":840,
-             "unique_ports":94,"retransmits":0.1,"ttl_variance":18.4,"payload_entropy":7.9},
-            {"bytes_sent":290,"bytes_recv":112000,"duration_s":41.2,"packets":12,
-             "unique_ports":1,"retransmits":6.2,"ttl_variance":0.1,"payload_entropy":1.1},
-        ],
-        "id_col": "conn_id",
-        "id_prefix": "CONN",
-    },
-    "video": {
-        "n_normal": 59,
-        "features": {
-            "temporal_coherence":  (0.88, 0.04),
-            "face_blink_rate":     (17,   3),
-            "micro_expression":    (0.62, 0.08),
-            "compression_artifact":(0.14, 0.03),
-            "optical_flow_var":    (0.31, 0.05),
-            "lip_sync_delta_ms":   (18,   5),
-            "texture_freq_high":   (0.44, 0.06),
-            "background_noise_db": (32,   4),
-            "frame_diff_mean":     (0.08, 0.01),
-            "gaze_natural_score":  (0.74, 0.07),
-        },
-        "outliers": [{
-            "temporal_coherence":  0.997,  # too perfect
-            "face_blink_rate":     4,      # unnaturally low
-            "micro_expression":    0.09,   # flat affect
-            "compression_artifact":0.52,   # GAN upsampling artifacts
-            "optical_flow_var":    0.71,   # unnatural motion
-            "lip_sync_delta_ms":   112,    # desync
-            "texture_freq_high":   0.88,   # AI sharpening
-            "background_noise_db": 8,      # near-silent background
-            "frame_diff_mean":     0.003,  # too stable
-            "gaze_natural_score":  0.12,   # unnatural gaze
-        }],
-        "id_col": "clip_id",
-        "id_prefix": "CLIP",
-    },
-}
-
-
-@app.get("/demo-dataset")
-async def demo_dataset(scenario: str = "vehicle"):
-    if scenario not in SCENARIOS:
-        raise HTTPException(400, f"Unknown scenario. Choose from: {list(SCENARIOS.keys())}")
-
-    cfg = SCENARIOS[scenario]
-    rng = np.random.default_rng(42)
-    rows = []
-
-    # Normal entities
-    for i in range(cfg["n_normal"]):
-        row = {cfg["id_col"]: f"{cfg['id_prefix']}-{i+1:03d}"}
-        for feat, (mu, sigma) in cfg["features"].items():
-            row[feat] = round(float(rng.normal(mu, sigma)), 4)
-        rows.append(row)
-
-    # Planted outliers
-    total = cfg["n_normal"]
-    for j, out in enumerate(cfg["outliers"]):
-        row = {cfg["id_col"]: f"{cfg['id_prefix']}-OUT-{j+1:02d}"}
-        row.update(out)
-        # Insert at a random position (not always last)
-        pos = rng.integers(0, total + 1)
-        rows.insert(int(pos), row)
-        total += 1
-
-    df = pd.DataFrame(rows)
-    csv_bytes = df.to_csv(index=False).encode("utf-8")
-
-    return StreamingResponse(
-        io.BytesIO(csv_bytes),
-        media_type="text/csv",
-        headers={"Content-Disposition": f"attachment; filename=demo_{scenario}.csv"},
-    )
