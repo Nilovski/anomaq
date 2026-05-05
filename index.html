@@ -313,205 +313,202 @@ footer{border-top:1px solid var(--border);padding:52px 48px;display:flex;align-i
 @media(max-width:640px){nav{padding:12px 18px}.section{padding:80px 18px}.hero{padding:100px 18px 60px}footer{padding:36px 18px}.use-cases{grid-template-columns:1fr}.market-grid{grid-template-columns:1fr}}
 </style>
 <style>
-/* ── FULL VIEWPORT LOCK ── */
-html, body { height:100%; overflow:hidden; }
+/* ── BASE ── */
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body { background:#0a0a0a; color:#fff; font-family:var(--sans); overflow-x:hidden; }
 
-/* ── TOP NAV (slim) ── */
-nav { padding:12px 32px; }
-
-/* ── MAIN SPLIT ── */
-.main-split {
-  display: flex;
-  height: calc(100vh - 57px);
-  overflow: hidden;
+/* ── TOP NAV ── */
+.top-nav {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 32px; height:52px;
+  background:rgba(10,10,10,.9);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,.07);
 }
-
-/* ── LEFT COLUMN ── */
-.col-left {
-  width: 300px;
-  flex-shrink: 0;
-  background: var(--ink);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
+.tn-logo {
+  display:flex; align-items:center; gap:9px;
+  font-size:1rem; font-weight:600; color:#fff;
+  text-decoration:none; letter-spacing:-.02em;
 }
-
-/* Background grid texture on left */
-.col-left::before {
-  content:'';
-  position:absolute;inset:0;
-  background-image:
-    linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
-  background-size:40px 40px;
-  pointer-events:none;
+.tn-logo .logo-hex { background:#fff; }
+.tn-logo .logo-hex::after { background:var(--q); }
+.mn-scroll {
+  display:flex; gap:2px; overflow-x:auto;
+  scrollbar-width:none;
 }
+.mn-scroll::-webkit-scrollbar { display:none; }
+.mn-btn {
+  font-family:var(--mono); font-size:.62rem; letter-spacing:.06em;
+  padding:5px 12px; border-radius:100px;
+  background:transparent; border:none;
+  color:rgba(255,255,255,.35); cursor:pointer;
+  transition:color .15s, background .15s;
+  white-space:nowrap;
+}
+.mn-btn:hover { color:#fff; background:rgba(255,255,255,.08); }
+.btn-nav {
+  font-size:.8rem; font-weight:500; padding:7px 18px;
+  border-radius:100px; background:var(--q); color:#000;
+  border:none; cursor:pointer; transition:opacity .2s;
+  flex-shrink:0;
+}
+.btn-nav:hover { opacity:.85; }
 
-/* Left cards stack — only active one shows */
-.left-cards {
-  flex:1;
+/* ── PAGE = COVER + CONTENT ── */
+.page { position:relative; }
+
+/* ── COVER: full viewport height, dark ── */
+.cover {
   position:relative;
+  height:100vh;
+  background:#0a0a0a;
+  display:flex; flex-direction:column;
   overflow:hidden;
-}
-.left-card {
-  position:absolute;
-  inset:0;
-  padding:40px 32px;
-  display:flex;
-  flex-direction:column;
-  opacity:0;
-  transform:translateY(20px);
-  pointer-events:none;
-  transition:opacity .35s ease, transform .35s ease;
-}
-.left-card.lc-active {
-  opacity:1;
-  transform:none;
-  pointer-events:auto;
+  border-bottom:1px solid rgba(255,255,255,.06);
 }
 
-.lc-icon {
-  width:48px;height:48px;
-  border-radius:12px;
-  border:1px solid;
-  display:grid;place-items:center;
-  font-size:1.3rem;
-  margin-bottom:24px;
-  flex-shrink:0;
+/* subtle grid texture */
+.cv-bg-grid {
+  position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size:48px 48px;
 }
-.lc-num {
-  font-family:var(--serif);
-  font-size:3.2rem;
-  line-height:1;
-  margin-bottom:4px;
-  flex-shrink:0;
+
+/* accent glow blob */
+.cover::before {
+  content:'';
+  position:absolute;
+  width:500px; height:500px;
+  border-radius:50%;
+  background:radial-gradient(circle, color-mix(in srgb, var(--acc) 18%, transparent) 0%, transparent 70%);
+  top:-100px; left:-100px;
+  pointer-events:none;
 }
-.lc-num span { font-size:1.4rem; opacity:.4; }
-.lc-title {
-  font-family:var(--serif);
-  font-size:1.7rem;
-  line-height:1.15;
-  color:#fff;
-  margin-bottom:12px;
-  flex-shrink:0;
-}
-.lc-desc {
-  font-size:.85rem;
-  color:rgba(255,255,255,.5);
-  line-height:1.65;
-  margin-bottom:auto;
-  flex-shrink:0;
-}
-.lc-stats {
-  display:flex;
-  gap:0;
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:12px;
-  overflow:hidden;
-  flex-shrink:0;
-  margin-top:28px;
-}
-.lc-stat {
+
+.cv-inner {
   flex:1;
-  padding:14px 10px;
-  text-align:center;
-  border-right:1px solid rgba(255,255,255,.1);
+  display:flex; flex-direction:column; justify-content:center;
+  padding:80px 72px 40px;
+  position:relative; z-index:1;
+  max-width:680px;
 }
-.lc-stat:last-child { border-right:none; }
-.lc-sv {
+.cv-icon {
+  width:52px; height:52px; border-radius:14px;
+  border:1px solid; display:grid; place-items:center;
+  font-size:1.4rem; margin-bottom:28px;
+}
+.cv-counter {
   font-family:var(--serif);
-  font-size:1.5rem;
-  line-height:1;
-  margin-bottom:4px;
+  font-size:clamp(3rem,8vw,5.5rem);
+  line-height:1; margin-bottom:8px;
+  letter-spacing:-.03em;
 }
-.lc-sl {
-  font-family:var(--mono);
-  font-size:.48rem;
-  color:rgba(255,255,255,.35);
-  letter-spacing:.08em;
+.cv-counter span { font-size:.38em; opacity:.35; }
+.cv-title {
+  font-family:var(--serif);
+  font-size:clamp(1.8rem,4vw,2.8rem);
+  color:#fff; margin-bottom:14px; line-height:1.1;
+}
+.cv-desc {
+  font-size:1rem; color:rgba(255,255,255,.45);
+  line-height:1.7; margin-bottom:auto;
+  max-width:420px;
+}
+.cv-stats {
+  display:flex; margin-top:36px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:14px; overflow:hidden;
+}
+.cv-stat {
+  flex:1; padding:16px 12px; text-align:center;
+  border-right:1px solid rgba(255,255,255,.08);
+}
+.cv-stat:last-child { border-right:none; }
+.cv-sv {
+  font-family:var(--serif);
+  font-size:1.8rem; line-height:1; margin-bottom:5px;
+}
+.cv-sl {
+  font-family:var(--mono); font-size:.5rem;
+  color:rgba(255,255,255,.3); letter-spacing:.08em;
   white-space:pre-line;
 }
+.cv-scroll-hint {
+  display:flex; align-items:center; gap:6px; margin-top:28px;
+  font-family:var(--mono); font-size:.65rem;
+  color:rgba(255,255,255,.2);
+  animation:hintBob 2s ease-in-out infinite;
+}
+@keyframes hintBob {
+  0%,100% { transform:translateY(0); opacity:.2; }
+  50% { transform:translateY(4px); opacity:.5; }
+}
 
-/* Left footer: tab labels + arrows */
-.col-left-foot {
-  flex-shrink:0;
-  padding:20px 32px;
-  border-top:1px solid rgba(255,255,255,.08);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  position:relative;
-  z-index:1;
+/* ── COVER FOOTER ── */
+.cv-foot {
+  position:relative; z-index:1;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 72px;
+  border-top:1px solid rgba(255,255,255,.06);
 }
-.nav-arrows {
-  display:flex;
-  gap:8px;
+.pg-dots {
+  display:flex; gap:7px; align-items:center;
 }
-.arrow-btn {
-  width:36px;height:36px;
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,.15);
-  background:transparent;
-  color:rgba(255,255,255,.6);
-  cursor:pointer;
-  font-size:1rem;
-  display:grid;place-items:center;
-  transition:background .2s,color .2s;
+.pg-dot, .pg-dot-active {
+  width:6px; height:6px; border-radius:50%;
+  background:rgba(255,255,255,.18); border:none; cursor:pointer;
+  padding:0; transition:all .2s;
 }
-.arrow-btn:hover { background:rgba(255,255,255,.1);color:#fff; }
-.arrow-btn:disabled { opacity:.2;cursor:default; }
-
-.nav-dots-wrap {
-  display:flex;gap:6px;align-items:center;
-}
-.nav-dot {
-  width:6px;height:6px;
-  border-radius:50%;
-  background:rgba(255,255,255,.2);
-  border:none;cursor:pointer;
-  padding:0;
-  transition:background .2s,transform .2s;
-}
-.nav-dot.nd-active { background:#fff; transform:scale(1.4); }
-.nav-dot:hover { background:rgba(255,255,255,.5); }
-
-/* ── RIGHT COLUMN ── */
-.col-right {
-  flex:1;
-  position:relative;
-  overflow:hidden;
-  background:var(--white);
-}
-.right-pane {
-  position:absolute;
-  inset:0;
-  overflow-y:auto;
-  opacity:0;
-  transform:translateX(24px);
+.pg-dot-active {
+  background:#fff; transform:scale(1.5);
   pointer-events:none;
-  transition:opacity .35s ease,transform .35s ease;
 }
-.right-pane.rc-active {
-  opacity:1;
-  transform:none;
-  pointer-events:auto;
+.pg-dots button:hover { background:rgba(255,255,255,.5); }
+.cv-arrows { display:flex; gap:8px; }
+.cv-arr {
+  width:40px; height:40px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.15);
+  background:transparent; color:rgba(255,255,255,.6);
+  cursor:pointer; font-size:1rem;
+  display:grid; place-items:center;
+  transition:background .18s, color .18s;
 }
+.cv-arr:hover { background:rgba(255,255,255,.1); color:#fff; }
+.cv-arr:disabled { opacity:.2; cursor:default; }
 
-/* Tighten section padding inside right pane */
-.right-pane .section { padding:48px 44px; }
-.right-pane .section-mid { margin-bottom:40px; }
+/* ── PAGE CONTENT (below cover) ── */
+.page-content {
+  background:var(--white);
+  padding:72px 72px 80px;
+  color:var(--ink);
+}
+.page-content .section { padding:0; }
+.page-content .section-mid { margin-bottom:48px; }
+.page-content .overline { display:block; }
+
+/* Fix text colors inside content (was white from body) */
+.page-content { color:var(--ink); }
+.page-content h1,.page-content h2,.page-content h3 { color:var(--ink); }
+.page-content p { color:var(--ink3); }
+.page-content .section-h { color:var(--ink); }
+.page-content .section-p { color:var(--ink3); }
+.page-content .step-h { color:var(--ink); }
+.page-content .step-p { color:var(--ink3); }
+.page-content .bc-h { color:var(--ink); }
+.page-content .bc-p { color:var(--ink3); }
+.page-content .uc-h { color:var(--ink); }
+.page-content .uc-p { color:var(--ink3); }
 
 /* Mobile */
-@media(max-width:720px){
-  html,body{height:auto;overflow:auto;}
-  .main-split{flex-direction:column;height:auto;}
-  .col-left{width:100%;height:auto;}
-  .left-cards{height:280px;}
-  .right-pane{position:relative;opacity:1;transform:none;pointer-events:auto;display:none;}
-  .right-pane.rc-active{display:block;}
-  .right-pane .section{padding:28px 18px;}
+@media(max-width:700px) {
+  .cv-inner { padding:72px 28px 32px; }
+  .cv-foot { padding:16px 28px; }
+  .page-content { padding:48px 24px 60px; }
+  .mn-scroll { display:none; }
 }
 </style>
 </head>
@@ -519,124 +516,63 @@ nav { padding:12px 32px; }
 <div class="cursor" id="cur"></div>
 <div class="cursor-ring" id="curR"></div>
 
-<nav>
-  <a href="#" class="nav-logo">
+<nav class="top-nav">
+  <a href="#" class="tn-logo">
     <div class="logo-hex"></div>
     AnomaQ
   </a>
-  <button class="btn-nav" onclick="goTo(7)">Run Analysis →</button>
+  <div class="mn-scroll"><button class="mn-btn" onclick="jumpTo(0)">Use Cases</button><button class="mn-btn" onclick="jumpTo(1)">How It Works</button><button class="mn-btn" onclick="jumpTo(2)">Data Types</button><button class="mn-btn" onclick="jumpTo(3)">Why Us</button><button class="mn-btn" onclick="jumpTo(4)">Results</button><button class="mn-btn" onclick="jumpTo(5)">Circuit</button><button class="mn-btn" onclick="jumpTo(6)">Qubit Map</button><button class="mn-btn" onclick="jumpTo(7)">Try It</button></div>
+  <button class="btn-nav" onclick="jumpTo(7)">Run Analysis →</button>
 </nav>
 
-<div class="main-split">
-  <!-- LEFT COLUMN -->
-  <div class="col-left">
-    <div class="left-cards">
-      
-<div class="left-card lc-active" id="lc-use-cases">
-  <div class="lc-icon" style="background:#ef444422;border-color:#ef444444;color:#ef4444">🎯</div>
-  <div class="lc-num" style="color:#ef4444">01<span>/08</span></div>
-  <div class="lc-title">Use Cases</div>
-  <div class="lc-desc">Defense scenarios where quantum detection is the difference.</div>
-  <div class="lc-stats">
-    <div class="lc-stat"><div class="lc-sv" style="color:#ef4444">2</div><div class="lc-sl">DEFENSE
-SCENARIOS</div></div><div class="lc-stat"><div class="lc-sv" style="color:#ef4444">3</div><div class="lc-sl">INPUT
-MODALITIES</div></div><div class="lc-stat"><div class="lc-sv" style="color:#ef4444">∞</div><div class="lc-sl">APPLICATI
-ONS</div></div>
-  </div>
-</div>
-<div class="left-card" id="lc-how">
-  <div class="lc-icon" style="background:#8b5cf622;border-color:#8b5cf644;color:#8b5cf6">⚙️</div>
-  <div class="lc-num" style="color:#8b5cf6">02<span>/08</span></div>
-  <div class="lc-title">How It Works</div>
-  <div class="lc-desc">Four quantum algorithms. One consensus anomaly score.</div>
-  <div class="lc-stats">
-    <div class="lc-stat"><div class="lc-sv" style="color:#8b5cf6">4</div><div class="lc-sl">QUANTUM
-METHODS</div></div><div class="lc-stat"><div class="lc-sv" style="color:#8b5cf6">3</div><div class="lc-sl">CLASSICAL
-BASELINES</div></div><div class="lc-stat"><div class="lc-sv" style="color:#8b5cf6">1</div><div class="lc-sl">CONSENSUS
-RANK</div></div>
-  </div>
-</div>
-<div class="left-card" id="lc-data-types">
-  <div class="lc-icon" style="background:#3b82f622;border-color:#3b82f644;color:#3b82f6">📊</div>
-  <div class="lc-num" style="color:#3b82f6">03<span>/08</span></div>
-  <div class="lc-title">Data Types</div>
-  <div class="lc-desc">Tabular CSV, image features, or graph edge lists.</div>
-  <div class="lc-stats">
-    <div class="lc-stat"><div class="lc-sv" style="color:#3b82f6">3</div><div class="lc-sl">INPUT
-TYPES</div></div><div class="lc-stat"><div class="lc-sv" style="color:#3b82f6">8</div><div class="lc-sl">ENCODING
-FEATURES</div></div><div class="lc-stat"><div class="lc-sv" style="color:#3b82f6">5</div><div class="lc-sl">QUBIT
-MAX</div></div>
-  </div>
-</div>
-<div class="left-card" id="lc-market">
-  <div class="lc-icon" style="background:#f59e0b22;border-color:#f59e0b44;color:#f59e0b">🏆</div>
-  <div class="lc-num" style="color:#f59e0b">04<span>/08</span></div>
-  <div class="lc-title">Why Us</div>
-  <div class="lc-desc">What incumbents miss and how AnomaQ fills the gap.</div>
-  <div class="lc-stats">
-    <div class="lc-stat"><div class="lc-sv" style="color:#f59e0b">2</div><div class="lc-sl">COMPETITOR
-GAPS</div></div><div class="lc-stat"><div class="lc-sv" style="color:#f59e0b">1</div><div class="lc-sl">UNIQUE
-SOLUTION</div></div><div class="lc-stat"><div class="lc-sv" style="color:#f59e0b">∞</div><div class="lc-sl">APPLICATI
-ONS</div></div>
-  </div>
-</div>
-<div class="left-card" id="lc-benchmarks">
-  <div class="lc-icon" style="background:#00c89622;border-color:#00c89644;color:#00c896">📈</div>
-  <div class="lc-num" style="color:#00c896">05<span>/08</span></div>
-  <div class="lc-title">Results</div>
-  <div class="lc-desc">ROC-AUC across ODDS datasets vs classical baselines.</div>
-  <div class="lc-stats">
-    <div class="lc-stat"><div class="lc-sv" style="color:#00c896">4</div><div class="lc-sl">DATASETS</div></div><div class="lc-stat"><div class="lc-sv" style="color:#00c896">7</div><div class="lc-sl">METHODS</div></div><div class="lc-stat"><div class="lc-sv" style="color:#00c896">0.998</div><div class="lc-sl">PEAK
-AUC</div></div>
-  </div>
-</div>
-<div class="left-card" id="lc-circuit">
-  <div class="lc-icon" style="background:#8b5cf622;border-color:#8b5cf644;color:#8b5cf6">⬡</div>
-  <div class="lc-num" style="color:#8b5cf6">06<span>/08</span></div>
-  <div class="lc-title">Circuit</div>
-  <div class="lc-desc">Click any gate to see what it does to your data.</div>
-  <div class="lc-stats">
-    <div class="lc-stat"><div class="lc-sv" style="color:#8b5cf6">5</div><div class="lc-sl">QUBITS</div></div><div class="lc-stat"><div class="lc-sv" style="color:#8b5cf6">2</div><div class="lc-sl">REPS</div></div><div class="lc-stat"><div class="lc-sv" style="color:#8b5cf6">ZZ</div><div class="lc-sl">FEATURE
-MAP</div></div>
-  </div>
-</div>
-<div class="left-card" id="lc-qubit-map">
-  <div class="lc-icon" style="background:#06b6d422;border-color:#06b6d444;color:#06b6d4">🔬</div>
-  <div class="lc-num" style="color:#06b6d4">07<span>/08</span></div>
-  <div class="lc-title">Qubit Map</div>
-  <div class="lc-desc">Feature → PCA → qubit encoding visualized.</div>
-  <div class="lc-stats">
-    <div class="lc-stat"><div class="lc-sv" style="color:#06b6d4">8</div><div class="lc-sl">SENSOR
-FEATURES</div></div><div class="lc-stat"><div class="lc-sv" style="color:#06b6d4">5</div><div class="lc-sl">QUBITS</div></div><div class="lc-stat"><div class="lc-sv" style="color:#06b6d4">86%</div><div class="lc-sl">VARIANCE
-KEPT</div></div>
-  </div>
-</div>
-<div class="left-card" id="lc-analyze">
-  <div class="lc-icon" style="background:#00c89622;border-color:#00c89644;color:#00c896">▶</div>
-  <div class="lc-num" style="color:#00c896">08<span>/08</span></div>
-  <div class="lc-title">Try It</div>
-  <div class="lc-desc">Drop a CSV. Quantum + classical detectors run live.</div>
-  <div class="lc-stats">
-    <div class="lc-stat"><div class="lc-sv" style="color:#00c896">6</div><div class="lc-sl">DETECTORS</div></div><div class="lc-stat"><div class="lc-sv" style="color:#00c896">50</div><div class="lc-sl">ROW
-MAX-Q</div></div><div class="lc-stat"><div class="lc-sv" style="color:#00c896">4</div><div class="lc-sl">QUANTUM
-ALGOS</div></div>
-  </div>
-</div>
-    </div>
-    <div class="col-left-foot">
-      <div class="nav-dots-wrap">
-        <button class="nav-dot nd-active" onclick="goTo(0)" title="Use Cases"></button><button class="nav-dot" onclick="goTo(1)" title="How It Works"></button><button class="nav-dot" onclick="goTo(2)" title="Data Types"></button><button class="nav-dot" onclick="goTo(3)" title="Why Us"></button><button class="nav-dot" onclick="goTo(4)" title="Results"></button><button class="nav-dot" onclick="goTo(5)" title="Circuit"></button><button class="nav-dot" onclick="goTo(6)" title="Qubit Map"></button><button class="nav-dot" onclick="goTo(7)" title="Try It"></button>
+<div style="padding-top:52px">
+  
+<div class="page" id="page-0" data-tid="use-cases">
+
+  <!-- FULL-VIEWPORT COVER CARD -->
+  <div class="cover" id="cover-0" style="--acc:#ef4444">
+    <div class="cv-bg-grid"></div>
+    <div class="cv-inner">
+      <div class="cv-icon" style="background:#ef44441a;border-color:#ef444444;color:#ef4444">🎯</div>
+      <div class="cv-counter" style="color:#ef4444">01<span>/08</span></div>
+      <div class="cv-title">Use Cases</div>
+      <div class="cv-desc">Defense scenarios where quantum detection is the difference.</div>
+      <div class="cv-stats">
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#ef4444">2</div>
+        <div class="cv-sl">DEFENSE
+SCENARIOS</div>
       </div>
-      <div class="nav-arrows">
-        <button class="arrow-btn" id="btn-prev" onclick="goTo(currentIdx-1)" disabled>←</button>
-        <button class="arrow-btn" id="btn-next" onclick="goTo(currentIdx+1)">→</button>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#ef4444">3</div>
+        <div class="cv-sl">INPUT
+MODALITIES</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#ef4444">∞</div>
+        <div class="cv-sl">APPLICATI
+ONS</div>
+      </div></div>
+      <div class="cv-scroll-hint">
+        <span>Scroll to explore</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M8 13l-3-3M8 13l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <!-- Bottom nav -->
+    <div class="cv-foot">
+      <div class="pg-dots"><button class="pg-dotpg-dot-active" onclick="jumpTo(0)" title="Use Cases" data-j="0"></button><button class="pg-dot" onclick="jumpTo(1)" title="How It Works" data-j="1"></button><button class="pg-dot" onclick="jumpTo(2)" title="Data Types" data-j="2"></button><button class="pg-dot" onclick="jumpTo(3)" title="Why Us" data-j="3"></button><button class="pg-dot" onclick="jumpTo(4)" title="Results" data-j="4"></button><button class="pg-dot" onclick="jumpTo(5)" title="Circuit" data-j="5"></button><button class="pg-dot" onclick="jumpTo(6)" title="Qubit Map" data-j="6"></button><button class="pg-dot" onclick="jumpTo(7)" title="Try It" data-j="7"></button></div>
+      <div class="cv-arrows">
+        <button class="cv-arr" onclick="jumpTo(-1)" disabled>←</button>
+        <button class="cv-arr" onclick="jumpTo(1)" >→</button>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT COLUMN -->
-  <div class="col-right">
-    <div class="right-pane rc-active" id="rc-use-cases"><div class="section-mid">
+  <!-- CONTENT FLOWS BELOW COVER -->
+  <div class="page-content">
+    <div class="section-mid">
     <span class="overline reveal">Real-World Applications</span>
     <h2 class="section-h reveal d1">Built for the <em>hardest</em> problems</h2>
     <p class="section-p reveal d2">Two defense scenarios where finding the anomaly isn't optional. AnomaQ detects what humans miss and classical models ignore.</p>
@@ -765,8 +701,56 @@ ALGOS</div></div>
         <span class="chip-sm">QAE · QAOA</span>
       </div>
     </div>
-  </div></div>
-<div class="right-pane" id="rc-how"><div class="section-mid">
+  </div>
+  </div>
+
+</div>
+<div class="page" id="page-1" data-tid="how">
+
+  <!-- FULL-VIEWPORT COVER CARD -->
+  <div class="cover" id="cover-1" style="--acc:#8b5cf6">
+    <div class="cv-bg-grid"></div>
+    <div class="cv-inner">
+      <div class="cv-icon" style="background:#8b5cf61a;border-color:#8b5cf644;color:#8b5cf6">⚙️</div>
+      <div class="cv-counter" style="color:#8b5cf6">02<span>/08</span></div>
+      <div class="cv-title">How It Works</div>
+      <div class="cv-desc">Four quantum algorithms. One consensus anomaly score.</div>
+      <div class="cv-stats">
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#8b5cf6">4</div>
+        <div class="cv-sl">QUANTUM
+METHODS</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#8b5cf6">3</div>
+        <div class="cv-sl">CLASSICAL
+BASELINES</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#8b5cf6">1</div>
+        <div class="cv-sl">CONSENSUS
+RANK</div>
+      </div></div>
+      <div class="cv-scroll-hint">
+        <span>Scroll to explore</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M8 13l-3-3M8 13l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <!-- Bottom nav -->
+    <div class="cv-foot">
+      <div class="pg-dots"><button class="pg-dot" onclick="jumpTo(0)" title="Use Cases" data-j="0"></button><button class="pg-dotpg-dot-active" onclick="jumpTo(1)" title="How It Works" data-j="1"></button><button class="pg-dot" onclick="jumpTo(2)" title="Data Types" data-j="2"></button><button class="pg-dot" onclick="jumpTo(3)" title="Why Us" data-j="3"></button><button class="pg-dot" onclick="jumpTo(4)" title="Results" data-j="4"></button><button class="pg-dot" onclick="jumpTo(5)" title="Circuit" data-j="5"></button><button class="pg-dot" onclick="jumpTo(6)" title="Qubit Map" data-j="6"></button><button class="pg-dot" onclick="jumpTo(7)" title="Try It" data-j="7"></button></div>
+      <div class="cv-arrows">
+        <button class="cv-arr" onclick="jumpTo(0)" >←</button>
+        <button class="cv-arr" onclick="jumpTo(2)" >→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT FLOWS BELOW COVER -->
+  <div class="page-content">
+    <div class="section-mid">
     <span class="overline reveal">Pipeline</span>
     <h2 class="section-h reveal d1">Four quantum methods, <em>one consensus</em></h2>
     <p class="section-p reveal d2">AnomaQ runs tabular, image, and graph data through a suite of quantum algorithms simultaneously. Classical methods provide the baseline; quantum methods catch what they miss.</p>
@@ -800,8 +784,56 @@ ALGOS</div></div>
         <div class="step-p">Results from all four quantum methods and three classical baselines are aggregated into a ranked list. Entities flagged by quantum-only methods are visualized with per-feature radar charts — explaining which dimensions drove the detection and why classical methods missed it.</div>
       </div>
     </div>
-  </div></div>
-<div class="right-pane" id="rc-data-types"><div class="section-mid">
+  </div>
+  </div>
+
+</div>
+<div class="page" id="page-2" data-tid="data-types">
+
+  <!-- FULL-VIEWPORT COVER CARD -->
+  <div class="cover" id="cover-2" style="--acc:#3b82f6">
+    <div class="cv-bg-grid"></div>
+    <div class="cv-inner">
+      <div class="cv-icon" style="background:#3b82f61a;border-color:#3b82f644;color:#3b82f6">📊</div>
+      <div class="cv-counter" style="color:#3b82f6">03<span>/08</span></div>
+      <div class="cv-title">Data Types</div>
+      <div class="cv-desc">Tabular CSV, image features, or graph edge lists — same pipeline.</div>
+      <div class="cv-stats">
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#3b82f6">3</div>
+        <div class="cv-sl">INPUT
+TYPES</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#3b82f6">8</div>
+        <div class="cv-sl">ENCODING
+FEATURES</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#3b82f6">5</div>
+        <div class="cv-sl">QUBIT
+MAX</div>
+      </div></div>
+      <div class="cv-scroll-hint">
+        <span>Scroll to explore</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M8 13l-3-3M8 13l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <!-- Bottom nav -->
+    <div class="cv-foot">
+      <div class="pg-dots"><button class="pg-dot" onclick="jumpTo(0)" title="Use Cases" data-j="0"></button><button class="pg-dot" onclick="jumpTo(1)" title="How It Works" data-j="1"></button><button class="pg-dotpg-dot-active" onclick="jumpTo(2)" title="Data Types" data-j="2"></button><button class="pg-dot" onclick="jumpTo(3)" title="Why Us" data-j="3"></button><button class="pg-dot" onclick="jumpTo(4)" title="Results" data-j="4"></button><button class="pg-dot" onclick="jumpTo(5)" title="Circuit" data-j="5"></button><button class="pg-dot" onclick="jumpTo(6)" title="Qubit Map" data-j="6"></button><button class="pg-dot" onclick="jumpTo(7)" title="Try It" data-j="7"></button></div>
+      <div class="cv-arrows">
+        <button class="cv-arr" onclick="jumpTo(1)" >←</button>
+        <button class="cv-arr" onclick="jumpTo(3)" >→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT FLOWS BELOW COVER -->
+  <div class="page-content">
+    <div class="section-mid">
     <span class="overline reveal">Data Flexibility</span>
     <h2 class="section-h reveal d1">Tabular, image, <em>or graph</em></h2>
     <p class="section-p reveal d2">AnomaQ handles three fundamentally different data types. Each uses the same quantum pipeline with dataset-appropriate preprocessing.</p>
@@ -908,8 +940,56 @@ ALGOS</div></div>
         </div>
       </div>
     </div>
-  </div></div>
-<div class="right-pane" id="rc-market"><div class="section-mid">
+  </div>
+  </div>
+
+</div>
+<div class="page" id="page-3" data-tid="market">
+
+  <!-- FULL-VIEWPORT COVER CARD -->
+  <div class="cover" id="cover-3" style="--acc:#f59e0b">
+    <div class="cv-bg-grid"></div>
+    <div class="cv-inner">
+      <div class="cv-icon" style="background:#f59e0b1a;border-color:#f59e0b44;color:#f59e0b">🏆</div>
+      <div class="cv-counter" style="color:#f59e0b">04<span>/08</span></div>
+      <div class="cv-title">Why Us</div>
+      <div class="cv-desc">What incumbents miss and how AnomaQ fills the gap.</div>
+      <div class="cv-stats">
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#f59e0b">2</div>
+        <div class="cv-sl">COMPETITOR
+GAPS</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#f59e0b">1</div>
+        <div class="cv-sl">UNIQUE
+SOLUTION</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#f59e0b">∞</div>
+        <div class="cv-sl">APPLICATI
+ONS</div>
+      </div></div>
+      <div class="cv-scroll-hint">
+        <span>Scroll to explore</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M8 13l-3-3M8 13l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <!-- Bottom nav -->
+    <div class="cv-foot">
+      <div class="pg-dots"><button class="pg-dot" onclick="jumpTo(0)" title="Use Cases" data-j="0"></button><button class="pg-dot" onclick="jumpTo(1)" title="How It Works" data-j="1"></button><button class="pg-dot" onclick="jumpTo(2)" title="Data Types" data-j="2"></button><button class="pg-dotpg-dot-active" onclick="jumpTo(3)" title="Why Us" data-j="3"></button><button class="pg-dot" onclick="jumpTo(4)" title="Results" data-j="4"></button><button class="pg-dot" onclick="jumpTo(5)" title="Circuit" data-j="5"></button><button class="pg-dot" onclick="jumpTo(6)" title="Qubit Map" data-j="6"></button><button class="pg-dot" onclick="jumpTo(7)" title="Try It" data-j="7"></button></div>
+      <div class="cv-arrows">
+        <button class="cv-arr" onclick="jumpTo(2)" >←</button>
+        <button class="cv-arr" onclick="jumpTo(4)" >→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT FLOWS BELOW COVER -->
+  <div class="page-content">
+    <div class="section-mid">
     <span class="overline reveal">Market Position</span>
     <h2 class="section-h reveal d1">What the market <em>is missing</em></h2>
     <p class="section-p reveal d2">Three incumbent approaches, three critical gaps. AnomaQ is built to fill the space none of them can reach.</p>
@@ -941,8 +1021,54 @@ ALGOS</div></div>
       <div class="mc-has">✓ Multi-algorithm consensus — quantum-only detections visualized</div>
       <div class="mc-has">✓ Circuit model today; annealing model path forward</div>
     </div>
-  </div></div>
-<div class="right-pane" id="rc-benchmarks"><div class="section-mid">
+  </div>
+  </div>
+
+</div>
+<div class="page" id="page-4" data-tid="benchmarks">
+
+  <!-- FULL-VIEWPORT COVER CARD -->
+  <div class="cover" id="cover-4" style="--acc:#00c896">
+    <div class="cv-bg-grid"></div>
+    <div class="cv-inner">
+      <div class="cv-icon" style="background:#00c8961a;border-color:#00c89644;color:#00c896">📈</div>
+      <div class="cv-counter" style="color:#00c896">05<span>/08</span></div>
+      <div class="cv-title">Results</div>
+      <div class="cv-desc">ROC-AUC across ODDS datasets vs classical baselines.</div>
+      <div class="cv-stats">
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#00c896">4</div>
+        <div class="cv-sl">DATASETS</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#00c896">7</div>
+        <div class="cv-sl">METHODS</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#00c896">0.998</div>
+        <div class="cv-sl">PEAK
+AUC</div>
+      </div></div>
+      <div class="cv-scroll-hint">
+        <span>Scroll to explore</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M8 13l-3-3M8 13l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <!-- Bottom nav -->
+    <div class="cv-foot">
+      <div class="pg-dots"><button class="pg-dot" onclick="jumpTo(0)" title="Use Cases" data-j="0"></button><button class="pg-dot" onclick="jumpTo(1)" title="How It Works" data-j="1"></button><button class="pg-dot" onclick="jumpTo(2)" title="Data Types" data-j="2"></button><button class="pg-dot" onclick="jumpTo(3)" title="Why Us" data-j="3"></button><button class="pg-dotpg-dot-active" onclick="jumpTo(4)" title="Results" data-j="4"></button><button class="pg-dot" onclick="jumpTo(5)" title="Circuit" data-j="5"></button><button class="pg-dot" onclick="jumpTo(6)" title="Qubit Map" data-j="6"></button><button class="pg-dot" onclick="jumpTo(7)" title="Try It" data-j="7"></button></div>
+      <div class="cv-arrows">
+        <button class="cv-arr" onclick="jumpTo(3)" >←</button>
+        <button class="cv-arr" onclick="jumpTo(5)" >→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT FLOWS BELOW COVER -->
+  <div class="page-content">
+    <div class="section-mid">
     <span class="overline reveal">Results</span>
     <h2 class="section-h reveal d1">Real numbers, <em>real datasets</em></h2>
     <p class="section-p reveal d2">ROC-AUC across four ODDS-derived datasets, stratified to n=120. Green = quantum matching or beating the best classical baseline.</p>
@@ -1045,24 +1171,164 @@ ALGOS</div></div>
         <strong style="color:var(--ink)">Key insight:</strong> QAE + qPCA match or beat the best classical method on 3 of 4 benchmark datasets. QAOA MaxCut excels on small ensembles (≤16 nodes) — ideal for squad-level or vehicle-fleet applications. Quantum Kernel OCSVM is best combined with re-uploading layers for larger datasets.
       </div>
     </div>
-  </div></div>
-<div class="right-pane" id="rc-circuit"><div class="section-mid">
+  </div>
+  </div>
+
+</div>
+<div class="page" id="page-5" data-tid="circuit">
+
+  <!-- FULL-VIEWPORT COVER CARD -->
+  <div class="cover" id="cover-5" style="--acc:#8b5cf6">
+    <div class="cv-bg-grid"></div>
+    <div class="cv-inner">
+      <div class="cv-icon" style="background:#8b5cf61a;border-color:#8b5cf644;color:#8b5cf6">⬡</div>
+      <div class="cv-counter" style="color:#8b5cf6">06<span>/08</span></div>
+      <div class="cv-title">Circuit</div>
+      <div class="cv-desc">Click any gate to see what it does to your data.</div>
+      <div class="cv-stats">
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#8b5cf6">5</div>
+        <div class="cv-sl">QUBITS</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#8b5cf6">2</div>
+        <div class="cv-sl">REPS</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#8b5cf6">ZZ</div>
+        <div class="cv-sl">FEATURE
+MAP</div>
+      </div></div>
+      <div class="cv-scroll-hint">
+        <span>Scroll to explore</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M8 13l-3-3M8 13l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <!-- Bottom nav -->
+    <div class="cv-foot">
+      <div class="pg-dots"><button class="pg-dot" onclick="jumpTo(0)" title="Use Cases" data-j="0"></button><button class="pg-dot" onclick="jumpTo(1)" title="How It Works" data-j="1"></button><button class="pg-dot" onclick="jumpTo(2)" title="Data Types" data-j="2"></button><button class="pg-dot" onclick="jumpTo(3)" title="Why Us" data-j="3"></button><button class="pg-dot" onclick="jumpTo(4)" title="Results" data-j="4"></button><button class="pg-dotpg-dot-active" onclick="jumpTo(5)" title="Circuit" data-j="5"></button><button class="pg-dot" onclick="jumpTo(6)" title="Qubit Map" data-j="6"></button><button class="pg-dot" onclick="jumpTo(7)" title="Try It" data-j="7"></button></div>
+      <div class="cv-arrows">
+        <button class="cv-arr" onclick="jumpTo(4)" >←</button>
+        <button class="cv-arr" onclick="jumpTo(6)" >→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT FLOWS BELOW COVER -->
+  <div class="page-content">
+    <div class="section-mid">
     <span class="overline reveal">Under the Hood</span>
     <h2 class="section-h reveal d1">The circuit, <em>explained</em></h2>
     <p class="section-p reveal d2">Click any gate to see exactly what it does to your data — in data science terms. This is how AnomaQ turns sensor readings into quantum anomaly scores.</p>
   </div>
   <div style="max-width:860px;margin:0 auto" class="reveal">
     <div id="circuit-viz"></div>
-  </div></div>
-<div class="right-pane" id="rc-qubit-map"><div class="section-mid">
+  </div>
+  </div>
+
+</div>
+<div class="page" id="page-6" data-tid="qubit-map">
+
+  <!-- FULL-VIEWPORT COVER CARD -->
+  <div class="cover" id="cover-6" style="--acc:#06b6d4">
+    <div class="cv-bg-grid"></div>
+    <div class="cv-inner">
+      <div class="cv-icon" style="background:#06b6d41a;border-color:#06b6d444;color:#06b6d4">🔬</div>
+      <div class="cv-counter" style="color:#06b6d4">07<span>/08</span></div>
+      <div class="cv-title">Qubit Map</div>
+      <div class="cv-desc">Feature → PCA → qubit encoding visualized.</div>
+      <div class="cv-stats">
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#06b6d4">8</div>
+        <div class="cv-sl">SENSOR
+FEATURES</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#06b6d4">5</div>
+        <div class="cv-sl">QUBITS</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#06b6d4">86%</div>
+        <div class="cv-sl">VARIANCE
+KEPT</div>
+      </div></div>
+      <div class="cv-scroll-hint">
+        <span>Scroll to explore</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M8 13l-3-3M8 13l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <!-- Bottom nav -->
+    <div class="cv-foot">
+      <div class="pg-dots"><button class="pg-dot" onclick="jumpTo(0)" title="Use Cases" data-j="0"></button><button class="pg-dot" onclick="jumpTo(1)" title="How It Works" data-j="1"></button><button class="pg-dot" onclick="jumpTo(2)" title="Data Types" data-j="2"></button><button class="pg-dot" onclick="jumpTo(3)" title="Why Us" data-j="3"></button><button class="pg-dot" onclick="jumpTo(4)" title="Results" data-j="4"></button><button class="pg-dot" onclick="jumpTo(5)" title="Circuit" data-j="5"></button><button class="pg-dotpg-dot-active" onclick="jumpTo(6)" title="Qubit Map" data-j="6"></button><button class="pg-dot" onclick="jumpTo(7)" title="Try It" data-j="7"></button></div>
+      <div class="cv-arrows">
+        <button class="cv-arr" onclick="jumpTo(5)" >←</button>
+        <button class="cv-arr" onclick="jumpTo(7)" >→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT FLOWS BELOW COVER -->
+  <div class="page-content">
+    <div class="section-mid">
     <span class="overline reveal">Feature Encoding</span>
     <h2 class="section-h reveal d1">From sensors <em>to qubits</em></h2>
     <p class="section-p reveal d2">AnomaQ compresses your sensor features through PCA, then maps each principal component onto a qubit. Hover over nodes to see which features drive each qubit.</p>
   </div>
   <div style="max-width:1000px;margin:0 auto" class="reveal">
     <div id="qubit-map-viz"></div>
-  </div></div>
-<div class="right-pane" id="rc-analyze"><div class="section-mid">
+  </div>
+  </div>
+
+</div>
+<div class="page" id="page-7" data-tid="analyze">
+
+  <!-- FULL-VIEWPORT COVER CARD -->
+  <div class="cover" id="cover-7" style="--acc:#00c896">
+    <div class="cv-bg-grid"></div>
+    <div class="cv-inner">
+      <div class="cv-icon" style="background:#00c8961a;border-color:#00c89644;color:#00c896">▶</div>
+      <div class="cv-counter" style="color:#00c896">08<span>/08</span></div>
+      <div class="cv-title">Try It</div>
+      <div class="cv-desc">Drop a CSV. Quantum + classical detectors run live.</div>
+      <div class="cv-stats">
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#00c896">6</div>
+        <div class="cv-sl">DETECTORS</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#00c896">50</div>
+        <div class="cv-sl">ROW
+MAX-Q</div>
+      </div>
+      <div class="cv-stat">
+        <div class="cv-sv" style="color:#00c896">4</div>
+        <div class="cv-sl">QUANTUM
+ALGOS</div>
+      </div></div>
+      <div class="cv-scroll-hint">
+        <span>Scroll to explore</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M8 13l-3-3M8 13l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <!-- Bottom nav -->
+    <div class="cv-foot">
+      <div class="pg-dots"><button class="pg-dot" onclick="jumpTo(0)" title="Use Cases" data-j="0"></button><button class="pg-dot" onclick="jumpTo(1)" title="How It Works" data-j="1"></button><button class="pg-dot" onclick="jumpTo(2)" title="Data Types" data-j="2"></button><button class="pg-dot" onclick="jumpTo(3)" title="Why Us" data-j="3"></button><button class="pg-dot" onclick="jumpTo(4)" title="Results" data-j="4"></button><button class="pg-dot" onclick="jumpTo(5)" title="Circuit" data-j="5"></button><button class="pg-dot" onclick="jumpTo(6)" title="Qubit Map" data-j="6"></button><button class="pg-dotpg-dot-active" onclick="jumpTo(7)" title="Try It" data-j="7"></button></div>
+      <div class="cv-arrows">
+        <button class="cv-arr" onclick="jumpTo(6)" >←</button>
+        <button class="cv-arr" onclick="jumpTo(8)" disabled>→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT FLOWS BELOW COVER -->
+  <div class="page-content">
+    <div class="section-mid">
     <span class="overline reveal">Live Demo</span>
     <h2 class="section-h reveal d1">Upload your data,<br><em>see the invisible</em></h2>
     <p class="section-p reveal d2">Drop a CSV or image dataset and watch quantum kernel analysis run in real time.</p>
@@ -1147,9 +1413,10 @@ ALGOS</div></div>
     </div>
 
     <div id="results"></div>
-  </div></div>
-
   </div>
+  </div>
+
+</div>
 </div>
 
 <script>
@@ -1200,7 +1467,7 @@ function switchResultTab(id,btn){
 }
 
 // VEHICLE BENCHMARK CARDS
-function initBenchVehicle(){if(window._initBenchVehicleDone)return;window._initBenchVehicleDone=true;
+function initBenchVehicle(){if(window._initBenchVehicle)return;window._initBenchVehicle=true;
   const methods=[
     {name:'IsoForest',top1:'VH-007',isQ:false,match:true},
     {name:'LOF',top1:'VH-007',isQ:false,match:true},
@@ -1226,7 +1493,7 @@ function initBenchVehicle(){if(window._initBenchVehicleDone)return;window._initB
 }
 
 // METHOD COMPARISON BARS
-function initMethodComp(){if(window._initMethodCompDone)return;window._initMethodCompDone=true;
+function initMethodComp(){if(window._initMethodComp)return;window._initMethodComp=true;
   const classical=[
     {name:'IsolationForest',scores:[0.729,1.000,0.998,0.841],avg:0.892},
     {name:'LOF',scores:[0.777,0.997,0.970,0.897],avg:0.910},
@@ -1260,7 +1527,7 @@ function initMethodComp(){if(window._initMethodCompDone)return;window._initMetho
 }
 
 // TABULAR DEMO BARS
-function initTabularViz(){if(window._initTabularVizDone)return;window._initTabularVizDone=true;
+function initTabularViz(){if(window._initTabularViz)return;window._initTabularViz=true;
   const c=document.getElementById('tabular-viz');
   if(!c)return;
   const methods=[
@@ -1288,7 +1555,7 @@ function initTabularViz(){if(window._initTabularVizDone)return;window._initTabul
 }
 
 // GRAPH VISUALIZATION (QAOA Social Network)
-function initGraphViz(){if(window._initGraphVizDone)return;window._initGraphVizDone=true;
+function initGraphViz(){if(window._initGraphViz)return;window._initGraphViz=true;
   const svg=document.getElementById('graph-svg');
   if(!svg)return;
   const nodes=[
@@ -1354,11 +1621,11 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 })();
 
 // FILE UPLOAD
-let _analyzeDone=false;
-function initAnalyze(){if(_analyzeDone)return;_analyzeDone=true;
+let _analyzeReady=false;
+function initAnalyze(){if(_analyzeReady)return;_analyzeReady=true;
 const dropZone=document.getElementById('drop-zone'),fileInput=document.getElementById('file-input'),runBtn=document.getElementById('run-btn'),fileNameEl=document.getElementById('file-name');
 let selectedFile=null;
-if(dropZone){dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over')});
+dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over')});
 dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.csv'))setFile(f)});
 fileInput.addEventListener('change',()=>{if(fileInput.files[0])setFile(fileInput.files[0])});
@@ -1580,7 +1847,7 @@ function render(data,useQ){
 }
 
 // ═══ CIRCUIT VISUALIZER ═══
-function initCircuit(){if(window._initCircuitDone)return;window._initCircuitDone=true;
+function initCircuit(){if(window._initCircuit)return;window._initCircuit=true;
   const features = ['sigma_hh','sigma_vv','sigma_hv','pol_ratio','entropy'];
   const explanations = {
     h: {
@@ -1717,8 +1984,8 @@ function initCircuit(){if(window._initCircuitDone)return;window._initCircuitDone
   };
 }
 
-// ═══ PCA → QUBIT MAP (static demo with SAR features) ═══
-function initQubitMap(){if(window._initQubitMapDone)return;window._initQubitMapDone=true;
+// ═══ PCA → QUBIT MAP ═══
+function initQubitMap(){if(window._initQubitMap)return;window._initQubitMap=true;
   const c = document.getElementById('qubit-map-viz');
   if(!c) return;
 
@@ -1834,27 +2101,25 @@ function initQubitMap(){if(window._initQubitMapDone)return;window._initQubitMapD
       </div>
     </div>`;
 
-  // tip looked up fresh in each handler
+  const tip = document.getElementById('qmap-tip');
   const feats = features;
   const qs = qubits;
 
   window.showFtip = function(idx, evt) {
     const f = feats[idx];
-    const tip=document.getElementById('qmap-tip');if(!tip)return;
     tip.innerHTML = `<div style="font-weight:600;color:#e0e0e0;margin-bottom:4px">${f.name}</div>
       <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:#888">Mean</span><span style="font-family:monospace;color:#e0e0e0">${f.mean}</span></div>
       <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:#888">Std</span><span style="font-family:monospace;color:#e0e0e0">${f.std}</span></div>`;
-    tip.style.display='block';tip.style.left='220px';tip.style.top=(evt.offsetY-30)+'px';
+    tip.style.display='block'; tip.style.left='220px'; tip.style.top=(evt.offsetY-30)+'px';
   };
   window.showQtip = function(idx, evt) {
     const q = qs[idx];
     const rows = q.top.map(t=>`<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:#888">${t[0]}</span><span style="font-family:monospace;color:#22d3ee">${t[1]}</span></div>`).join('');
-    const tip2=document.getElementById('qmap-tip');if(!tip2)return;
-    tip2.innerHTML = `<div style="font-weight:600;color:#e0e0e0;margin-bottom:4px">Qubit ${idx} · ${q.var}% variance</div>
+    tip.innerHTML = `<div style="font-weight:600;color:#e0e0e0;margin-bottom:4px">Qubit ${idx} · ${q.var}% variance</div>
       <div style="font-size:10px;color:#888;margin-bottom:4px">Top contributing features:</div>${rows}`;
-    tip2.style.display='block';tip2.style.left='640px';tip2.style.top=(evt.offsetY-30)+'px';
+    tip.style.display='block'; tip.style.left='640px'; tip.style.top=(evt.offsetY-30)+'px';
   };
-  window.hideTip = ()=>{ const t=document.getElementById('qmap-tip');if(t)t.style.display='none'; };
+  window.hideTip = ()=>{ tip.style.display='none'; };
 }
 
 // ═══ SCATTER PLOT RESULT TAB ═══
@@ -1980,49 +2245,69 @@ function drawScatterSVG(svg, data, cats, xCol, yCol) {
     <text x="12" y="${H/2}" font-size="9" fill="#6b6b6b" font-family="Geist Mono,monospace" text-anchor="middle" transform="rotate(-90 12 ${H/2})">${yLabel}</text>`;
 }
 
-} // close any stray open block
 
-// ── SLIDE NAVIGATION ─────────────────────────────────────────────
-const TABS = ['use-cases', 'how', 'data-types', 'market', 'benchmarks', 'circuit', 'qubit-map', 'analyze'];
-let currentIdx = 0;
 
-function goTo(idx) {
-  if(idx < 0 || idx >= TABS.length) return;
-  const prev = currentIdx;
-  currentIdx = idx;
+const PAGE_IDS = ['use-cases', 'how', 'data-types', 'market', 'benchmarks', 'circuit', 'qubit-map', 'analyze'];
+const N = 8;
 
-  // Left cards
-  document.querySelectorAll('.left-card').forEach(c=>c.classList.remove('lc-active'));
-  document.querySelectorAll('.nav-dot').forEach(d=>d.classList.remove('nd-active'));
-  const lc = document.getElementById('lc-'+TABS[idx]);
-  const dot = document.querySelectorAll('.nav-dot')[idx];
-  if(lc)  lc.classList.add('lc-active');
-  if(dot) dot.classList.add('nd-active');
-
-  // Right panes
-  document.querySelectorAll('.right-pane').forEach(p=>p.classList.remove('rc-active'));
-  const rp = document.getElementById('rc-'+TABS[idx]);
-  if(rp) { rp.classList.add('rc-active'); rp.scrollTop=0; }
-
-  // Arrow states
-  const prev_btn = document.getElementById('btn-prev');
-  const next_btn = document.getElementById('btn-next');
-  if(prev_btn) prev_btn.disabled = idx===0;
-  if(next_btn) next_btn.disabled = idx===TABS.length-1;
-
-  // Lazy inits
-  if(TABS[idx]==='analyze')    initAnalyze();
-  if(TABS[idx]==='circuit')    initCircuit();
-  if(TABS[idx]==='qubit-map')  initQubitMap();
-  if(TABS[idx]==='benchmarks') { initBenchVehicle(); initMethodComp(); initTabularViz(); }
-  if(TABS[idx]==='data-types') initGraphViz();
+function jumpTo(idx) {
+  if (idx < 0 || idx >= N) return;
+  const cover = document.getElementById('cover-' + idx);
+  if (cover) cover.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  updateDots(idx);
+  lazyInit(PAGE_IDS[idx]);
 }
 
-// Keyboard nav
-document.addEventListener('keydown', e=>{
-  if(e.key==='ArrowRight'||e.key==='ArrowDown') goTo(currentIdx+1);
-  if(e.key==='ArrowLeft' ||e.key==='ArrowUp')   goTo(currentIdx-1);
-});
+function updateDots(activeIdx) {
+  document.querySelectorAll('.pg-dots button').forEach((btn, i) => {
+    // Each cover has its own dot row — update all dot rows
+    const globalIdx = Math.floor(i / N); // not needed since all covers share same count
+  });
+  // Re-render all dot buttons based on active
+  document.querySelectorAll('.pg-dot, .pg-dot-active').forEach(btn => {
+    const j = parseInt(btn.dataset.j);
+    if (!isNaN(j)) {
+      btn.className = j === activeIdx ? 'pg-dot-active' : 'pg-dot';
+    }
+  });
+}
+
+function lazyInit(id) {
+  if (id === 'analyze')    initAnalyze();
+  if (id === 'circuit')    initCircuit();
+  if (id === 'qubit-map')  initQubitMap();
+  if (id === 'benchmarks') { initBenchVehicle(); initMethodComp(); initTabularViz(); }
+  if (id === 'data-types') initGraphViz();
+}
+
+// IntersectionObserver: fire lazy init + update dots when cover enters view
+const coverObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && e.intersectionRatio > 0.4) {
+      const idx = parseInt(e.target.id.split('-')[1]);
+      updateDots(idx);
+      lazyInit(PAGE_IDS[idx]);
+    }
+  });
+}, { threshold: 0.4 });
+
+document.querySelectorAll('.cover').forEach(c => coverObs.observe(c));
+
+// IntersectionObserver for content sections too
+const contentObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const tid = e.target.closest('.page')?.dataset.tid;
+      if (tid) lazyInit(tid);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.page-content').forEach(c => contentObs.observe(c));
+
+setTimeout(() => {
+  initBenchVehicle(); initMethodComp(); initTabularViz(); initGraphViz();
+}, 300);
+
 </script>
 </body>
 </html>
