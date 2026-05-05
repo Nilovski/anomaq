@@ -1701,18 +1701,23 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
   setTimeout(()=>{c.querySelectorAll('[data-w]').forEach(el=>{el.style.width=el.dataset.w+'%'})},500);
 })();
 
-// FILE UPLOAD
+// FILE UPLOAD — selectedFile at module scope so run() can always access it
 let _analyzeReady=false;
+let selectedFile=null;
+function setFile(f){
+  selectedFile=f;
+  const fileNameEl=document.getElementById('file-name');
+  const runBtn=document.getElementById('run-btn');
+  if(fileNameEl)fileNameEl.textContent=`✓ ${f.name}  (${(f.size/1024).toFixed(1)} KB)`;
+  if(runBtn)runBtn.disabled=false;
+}
 function initAnalyze(){if(_analyzeReady)return;_analyzeReady=true;
   loadRealDatasets();
-const dropZone=document.getElementById('drop-zone'),fileInput=document.getElementById('file-input'),runBtn=document.getElementById('run-btn'),fileNameEl=document.getElementById('file-name');
-let selectedFile=null;
+const dropZone=document.getElementById('drop-zone'),fileInput=document.getElementById('file-input'),runBtn=document.getElementById('run-btn');
 dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over')});
 dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.csv'))setFile(f)});
 fileInput.addEventListener('change',()=>{if(fileInput.files[0])setFile(fileInput.files[0])});
-function setFile(f){selectedFile=f;fileNameEl.textContent=`✓ ${f.name}  (${(f.size/1024).toFixed(1)} KB)`;runBtn.disabled=false}
-
 if(runBtn)runBtn.addEventListener('click',run);
 } // end initAnalyze
 async function run(){
