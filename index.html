@@ -1632,6 +1632,7 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 // FILE UPLOAD
 let _analyzeReady=false;
 function initAnalyze(){if(_analyzeReady)return;_analyzeReady=true;
+  loadRealDatasets();
 const dropZone=document.getElementById('drop-zone'),fileInput=document.getElementById('file-input'),runBtn=document.getElementById('run-btn'),fileNameEl=document.getElementById('file-name');
 let selectedFile=null;
 dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over')});
@@ -2346,7 +2347,7 @@ function updateDots(activeIdx) {
 }
 
 function lazyInit(id) {
-  if (id === 'analyze')    initAnalyze();
+  if (id === 'analyze')    { initAnalyze(); loadRealDatasets(); }
   if (id === 'circuit')    initCircuit();
   if (id === 'qubit-map')  initQubitMap();
   if (id === 'benchmarks') { initBenchVehicle(); initMethodComp(); initTabularViz(); }
@@ -2381,6 +2382,167 @@ setTimeout(() => {
   initBenchVehicle(); initMethodComp(); initTabularViz(); initGraphViz();
 }, 300);
 
+// ── REAL DATASETS ─────────────────────────────────────────────────
+let _rdLoaded = false;
+
+function loadRealDatasets() {
+  if (_rdLoaded) return;
+  _rdLoaded = true;
+  const grid = document.getElementById('rd-grid');
+  if (!grid) return;
+
+  const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? `${window.location.protocol}//${window.location.hostname}:8000` : '';
+
+  fetch(`${apiBase}/datasets-real`)
+    .then(r => r.json())
+    .then(data => {
+      grid.innerHTML = '';
+      (data.datasets || []).forEach(ds => {
+        const card = document.createElement('div');
+        card.className = 'rd-card';
+        card.innerHTML = `
+          <div class="rd-card-icon">${ds.icon}</div>
+          <div class="rd-card-industry">${ds.industry}</div>
+          <div class="rd-card-title">${ds.title}</div>
+          <div class="rd-card-tagline">${ds.tagline}</div>
+          <div class="rd-card-meta">
+            <span class="rd-chip">${ds.n_samples} samples</span>
+            <span class="rd-chip">${ds.n_features} features</span>
+            <span class="rd-chip">${ds.contamination_pct}% anomaly</span>
+          </div>`;
+        card.onclick = () => runRealDataset(ds.name, ds.title, card, apiBase);
+        grid.appendChild(card);
+      });
+    })
+    .catch(() => {
+      grid.innerHTML = '<div class="rd-loading">Backend not running — start with <code>python main.py</code></div>';
+    });
+}
+
+function runRealDataset(name, title, card, apiBase) {
+  card.classList.add('rd-running');
+  card.innerHTML += '<div style="font-family:var(--mono);font-size:.6rem;color:var(--q);margin-top:8px">Running quantum analysis...</div>';
+
+  fetch(`${apiBase}/run-quantum-real?name=${name}`)
+    .then(r => r.json())
+    .then(data => {
+      card.classList.remove('rd-running');
+      card.innerHTML = card.innerHTML.replace(/<div style="font-family.*<\/div>/, '');
+      showRealResult(data);
+    })
+    .catch(e => {
+      card.classList.remove('rd-running');
+      alert('Error: ' + e.message);
+    });
+}
+
+function showRealResult(data) {
+  const el = document.getElementById('rd-result');
+  if (!el) return;
+  el.style.display = 'block';
+
+  const m = data.metrics;
+  const stats = data.stats;
+
+  function metricCard(name, key, color) {
+    const mx = m[key];
+    const aucVal = isNaN(mx.auc) ? '—' : (mx.auc * 100).toFixed(1) + '%';
+    const aucClass = mx.auc >= 0.8 ? 'good' : mx.auc >= 0.6 ? 'warn' : '';
+    return `<div class="rd-metric-card">
+      <div class="rd-metric-name">${name}</div>
+      <div class="rd-metric-row"><span class="rd-metric-key">ROC-AUC</span><span class="rd-metric-val ${aucClass}">${aucVal}</span></div>
+      <div class="rd-metric-row"><span class="rd-metric-key">Precision</span><span class="rd-metric-val">${(mx.precision*100).toFixed(0)}%</span></div>
+      <div class="rd-metric-row"><span class="rd-metric-key">Recall</span><span class="rd-metric-val">${(mx.recall*100).toFixed(0)}%</span></div>
+      <div class="rd-metric-row"><span class="rd-metric-key">F1</span><span class="rd-metric-val">${(mx.f1*100).toFixed(0)}%</span></div>
+      <div class="rd-metric-row"><span class="rd-metric-key">TP/FP/FN</span><span class="rd-metric-val">${mx.tp}/${mx.fp}/${mx.fn}</span></div>
+    </div>`;
+  }
+
+  // Top anomalies by combined score
+  const topN = 15;
+  const sorted = [...data.samples].sort((a,b) => b.combined_score - a.combined_score);
+  const maxScore = sorted[0]?.combined_score || 1;
+
+  let rows = sorted.slice(0, topN).map(s => {
+    const pct = ((s.combined_score / maxScore) * 100).toFixed(1);
+    const isTrue = s.true === 1;
+    const isPred = s.combined_pred === 1;
+    let badge = '', badgeClass = '';
+    if (isTrue && isPred)   { badge = 'TP'; badgeClass = 'rd-badge-tp'; }
+    else if (!isTrue && isPred) { badge = 'FP'; badgeClass = 'rd-badge-fp'; }
+    else if (isTrue && !isPred) { badge = 'FN'; badgeClass = 'rd-badge-fn'; }
+    else { badge = 'TN'; badgeClass = 'rd-badge-tn'; }
+    const scoreColor = isTrue ? '#00c896' : (isPred ? '#f59e0b' : 'rgba(0,0,0,.2)');
+    return `<div class="rd-sample-row">
+      <div class="rd-sid">${s.id}</div>
+      <div class="rd-score-bar"><div class="rd-score-fill" data-w="${pct}" style="width:0%;background:${scoreColor}"></div></div>
+      <div style="font-family:var(--mono);font-size:.65rem;color:var(--ink3);width:38px;text-align:right">${s.combined_score.toFixed(3)}</div>
+      <div class="rd-badge ${badgeClass}">${badge}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="rd-res-header">
+      <div>
+        <div class="rd-res-title">${data.dataset.title}</div>
+        <div style="font-size:.8rem;color:var(--ink3);margin-top:4px">${stats.n_samples} samples · ${stats.n_features} features · ${stats.n_anomaly_truth} true anomalies · ${stats.n_qubits} qubits</div>
+      </div>
+      <button class="rd-res-close" onclick="document.getElementById('rd-result').style.display='none'">✕</button>
+    </div>
+    <div class="rd-metrics">
+      ${metricCard('Quantum PCA', 'qpca', '#8b5cf6')}
+      ${metricCard('Quantum AE', 'qae', '#00c896')}
+      ${metricCard('Combined', 'combined', '#3b82f6')}
+    </div>
+    <div class="rd-samples">
+      <div style="font-family:var(--mono);font-size:.62rem;color:var(--ink4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">Top ${topN} by anomaly score</div>
+      ${rows}
+    </div>
+    <div style="margin-top:12px;font-size:.78rem;color:var(--ink4)">
+      Source: <a href="${data.dataset.source_url}" target="_blank" style="color:var(--q)">${data.dataset.source_label}</a>
+    </div>`;
+
+  // Animate bars
+  setTimeout(() => {
+    el.querySelectorAll('[data-w]').forEach(b => b.style.width = b.dataset.w + '%');
+  }, 80);
+
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── DEMO SCENARIOS ─────────────────────────────────────────────────
+async function loadDemoScenario(scenario) {
+  const btns = document.querySelectorAll('.demo-sc-btn');
+  btns.forEach(b => b.classList.add('loading'));
+
+  const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? `${window.location.protocol}//${window.location.hostname}:8000` : '';
+
+  try {
+    const res = await fetch(`${apiBase}/demo-dataset?scenario=${scenario}`);
+    if (!res.ok) throw new Error('Server not running');
+    const blob = await res.blob();
+    const file = new File([blob], `demo_${scenario}.csv`, { type: 'text/csv' });
+
+    // Set file into the upload zone
+    selectedFile = file;
+    const fn = document.getElementById('file-name');
+    const rb = document.getElementById('run-btn');
+    if (fn) fn.textContent = `✓ demo_${scenario}.csv  (${(blob.size/1024).toFixed(1)} KB)`;
+    if (rb) { rb.disabled = false; }
+
+    // Auto-run
+    run();
+  } catch(e) {
+    alert('Could not load demo: ' + e.message + '\n\nMake sure the backend is running: python main.py');
+  } finally {
+    btns.forEach(b => b.classList.remove('loading'));
+  }
+}
+
+// Load real datasets when analyze pane is first shown
+const _origInitAnalyze = typeof initAnalyze === 'function' ? initAnalyze : null;
 </script>
 </body>
 </html>
