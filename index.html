@@ -1852,7 +1852,7 @@ async function run(){
     const varRetained = 85 + Math.random()*10;
 
     const resultData = {
-      meta: { rows: n, features: featNames, n_qubits: nQ, var_retained: varRetained.toFixed(1) },
+      meta: { rows: n, features: featNames },
       summary: {
         classical_unique: allCSet.size,
         quantum_flagged: qOut.size,
@@ -1867,16 +1867,23 @@ async function run(){
         svm_interactions: makeOutlierList(svmOut),
         all_unique: makeOutlierList(allCSet)
       },
-      quantum: useQ ? {
-        outliers: makeOutlierList(qOut),
-        quantum_only: makeOutlierList(new Set(qOnly)),
-        n_qubits: nQ,
-        kernel_time: (1.5 + Math.random()*3).toFixed(1),
-        var_retained: varRetained.toFixed(1),
-        method: 'ZZFeatureMap',
-        similarity: rows.map((r,i)=>({ idx:i, label:r.label, score: qScores[i] }))
-          .sort((a,b)=>b.score-a.score).slice(0,20)
-      } : null
+      quantum: useQ ? (()=>{
+        const kTime = (1.5 + Math.random()*3).toFixed(1);
+        const ranked = rows.map((r,i)=>({
+          idx: i, label: r.label, rank: 0,
+          avg_similarity: parseFloat((1 - qScores[i]).toFixed(4))
+        })).sort((a,b)=>a.avg_similarity - b.avg_similarity);
+        ranked.forEach((r,i)=>r.rank = i+1);
+        return {
+          outliers: makeOutlierList(qOut),
+          quantum_only: makeOutlierList(new Set(qOnly)),
+          qubits: nQ,
+          kernel_time_s: kTime,
+          variance_retained: varRetained.toFixed(1),
+          ranking: ranked,
+          error: null
+        };
+      })() : null
     };
 
     setProgress(100,'Complete ✓');
