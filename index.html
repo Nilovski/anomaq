@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AnomaQ — Quantum Anomaly Detection</title>
+<title>Qatalyst — Quantum Anomaly Detection</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -519,9 +519,18 @@ body { background:#0a0a0a; color:#fff; font-family:var(--sans); overflow-x:hidde
 <nav class="top-nav">
   <a href="#" class="tn-logo">
     <div class="logo-hex"></div>
-    AnomaQ
+    Qatalyst
   </a>
-  <div class="mn-scroll"><button class="mn-btn" onclick="jumpTo(0)">Use Cases</button><button class="mn-btn" onclick="jumpTo(1)">How It Works</button><button class="mn-btn" onclick="jumpTo(2)">Data Types</button><button class="mn-btn" onclick="jumpTo(3)">Why Us</button><button class="mn-btn" onclick="jumpTo(4)">Results</button><button class="mn-btn" onclick="jumpTo(5)">Circuit</button><button class="mn-btn" onclick="jumpTo(6)">Qubit Map</button><button class="mn-btn" onclick="jumpTo(7)">Try It</button></div>
+  <div class="mn-scroll">
+    <button class="mn-btn" onclick="jumpTo(0)">Use Cases</button>
+    <button class="mn-btn" onclick="jumpTo(1)">How It Works</button>
+    <button class="mn-btn" onclick="jumpTo(2)">Data Types</button>
+    <button class="mn-btn" onclick="jumpTo(3)">Why Us</button>
+    <button class="mn-btn" onclick="jumpTo(4)">Results</button>
+    <button class="mn-btn" onclick="jumpTo(5)">Circuit</button>
+    <button class="mn-btn" onclick="jumpTo(6)">Qubit Map</button>
+    <button class="mn-btn mn-btn-try" onclick="jumpTo(7)">Try It</button>
+  </div>
   <button class="btn-nav" onclick="jumpTo(7)">Run Analysis →</button>
 </nav>
 
@@ -575,7 +584,7 @@ ONS</div>
     <div class="section-mid">
     <span class="overline reveal">Real-World Applications</span>
     <h2 class="section-h reveal d1">Built for the <em>hardest</em> problems</h2>
-    <p class="section-p reveal d2">Two defense scenarios where finding the anomaly isn't optional. AnomaQ detects what humans miss and classical models ignore.</p>
+    <p class="section-p reveal d2">Two defense scenarios where finding the anomaly isn't optional. Qatalyst detects what humans miss and classical models ignore.</p>
   </div>
 
   <div class="use-cases">
@@ -584,7 +593,7 @@ ONS</div>
       <div class="uc-header">
         <div class="uc-tag">Use Case 01 · SAR / Field Operations</div>
         <div class="uc-h">Soldier & equipment anomaly detection</div>
-        <div class="uc-p">Given image or video feeds from a field context — thermal signatures, load distribution, movement patterns — AnomaQ flags equipment failures, behavioral irregularities, and physiological outliers invisible to standard inspection protocols.</div>
+        <div class="uc-p">Given image or video feeds from a field context — thermal signatures, load distribution, movement patterns — Qatalyst flags equipment failures, behavioral irregularities, and physiological outliers invisible to standard inspection protocols.</div>
       </div>
       <div class="uc-visual" id="uc1-visual">
         <svg viewBox="0 0 560 220" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
@@ -634,7 +643,7 @@ ONS</div>
       <div class="uc-header">
         <div class="uc-tag">Use Case 02 · Media Integrity</div>
         <div class="uc-h">AI-generated video detection</div>
-        <div class="uc-p">Given 10 videos, determine which is fake. AnomaQ encodes per-frame feature vectors — pixel coherence, motion entropy, compression artifacts, facial topology — and applies quantum kernel methods to isolate synthetic media from real footage.</div>
+        <div class="uc-p">Given 10 videos, determine which is fake. Qatalyst encodes per-frame feature vectors — pixel coherence, motion entropy, compression artifacts, facial topology — and applies quantum kernel methods to isolate synthetic media from real footage.</div>
       </div>
       <div class="uc-visual" id="uc2-visual">
         <svg viewBox="0 0 560 220" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
@@ -753,14 +762,14 @@ RANK</div>
     <div class="section-mid">
     <span class="overline reveal">Pipeline</span>
     <h2 class="section-h reveal d1">Four quantum methods, <em>one consensus</em></h2>
-    <p class="section-p reveal d2">AnomaQ runs tabular, image, and graph data through a suite of quantum algorithms simultaneously. Classical methods provide the baseline; quantum methods catch what they miss.</p>
+    <p class="section-p reveal d2">Qatalyst runs tabular, image, and graph data through a suite of quantum algorithms simultaneously. Classical methods provide the baseline; quantum methods catch what they miss.</p>
   </div>
   <div class="steps">
     <div class="step reveal">
       <div class="step-num" style="background:var(--ink)">01</div>
       <div>
         <div class="step-h">Ingest: CSV, image, or graph</div>
-        <div class="step-p">AnomaQ accepts numeric tabular data (CSV), image datasets (encoded as per-pixel feature vectors or color-coded attributes), and graph-structured data (adjacency matrices for social network or connectivity analysis). All inputs are normalized via magnitude-preserving amplitude encoding so relative distances survive the quantum embedding.</div>
+        <div class="step-p">Qatalyst accepts numeric tabular data (CSV), image datasets (encoded as per-pixel feature vectors or color-coded attributes), and graph-structured data (adjacency matrices for social network or connectivity analysis). All inputs are normalized via magnitude-preserving amplitude encoding so relative distances survive the quantum embedding.</div>
       </div>
     </div>
     <div class="step reveal d1">
@@ -836,7 +845,7 @@ MAX</div>
     <div class="section-mid">
     <span class="overline reveal">Data Flexibility</span>
     <h2 class="section-h reveal d1">Tabular, image, <em>or graph</em></h2>
-    <p class="section-p reveal d2">AnomaQ handles three fundamentally different data types. Each uses the same quantum pipeline with dataset-appropriate preprocessing.</p>
+    <p class="section-p reveal d2">Qatalyst handles three fundamentally different data types. Each uses the same quantum pipeline with dataset-appropriate preprocessing.</p>
   </div>
 
   <div class="data-tabs-wrap reveal">
@@ -851,13 +860,13 @@ MAX</div>
         <div style="border:1px solid var(--border);border-radius:var(--r2);padding:28px;background:var(--white)">
           <div style="font-family:var(--mono);font-size:.65rem;color:var(--ink4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">What you provide</div>
           <div style="font-family:var(--serif);font-size:1.4rem;margin-bottom:10px">A CSV file. Any numeric columns.</div>
-          <div style="font-size:.88rem;color:var(--ink3);line-height:1.7">Sensor readings, vehicle telemetry, financial metrics, medical lab results — anything with rows and numeric columns. AnomaQ auto-detects features and handles preprocessing including standardization and magnitude-preserving amplitude encoding.</div>
+          <div style="font-size:.88rem;color:var(--ink3);line-height:1.7">Sensor readings, vehicle telemetry, financial metrics, medical lab results — anything with rows and numeric columns. Qatalyst auto-detects features and handles preprocessing including standardization and magnitude-preserving amplitude encoding.</div>
           <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
             <span class="chip-sm">Vehicle sensors</span><span class="chip-sm">Medical labs</span><span class="chip-sm">Financial metrics</span><span class="chip-sm">Sensor arrays</span>
           </div>
         </div>
         <div style="border:1px solid var(--border);border-radius:var(--r2);padding:28px;background:var(--white)">
-          <div style="font-family:var(--mono);font-size:.65rem;color:var(--ink4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">What AnomaQ finds</div>
+          <div style="font-family:var(--mono);font-size:.65rem;color:var(--ink4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">What Qatalyst finds</div>
           <div id="tabular-viz"></div>
           <div style="margin-top:14px;font-size:.82rem;color:var(--ink4)">Vehicle ensemble: 26 samples × 7 features. Quantum PCA + QAE agree on VH-007 as top anomaly — matching 2 of 3 classical methods.</div>
         </div>
@@ -953,7 +962,7 @@ MAX</div>
       <div class="cv-icon" style="background:#f59e0b1a;border-color:#f59e0b44;color:#f59e0b">🏆</div>
       <div class="cv-counter" style="color:#f59e0b">04<span>/08</span></div>
       <div class="cv-title">Why Us</div>
-      <div class="cv-desc">What incumbents miss and how AnomaQ fills the gap.</div>
+      <div class="cv-desc">What incumbents miss and how Qatalyst fills the gap.</div>
       <div class="cv-stats">
       <div class="cv-stat">
         <div class="cv-sv" style="color:#f59e0b">2</div>
@@ -992,7 +1001,7 @@ ONS</div>
     <div class="section-mid">
     <span class="overline reveal">Market Position</span>
     <h2 class="section-h reveal d1">What the market <em>is missing</em></h2>
-    <p class="section-p reveal d2">Three incumbent approaches, three critical gaps. AnomaQ is built to fill the space none of them can reach.</p>
+    <p class="section-p reveal d2">Three incumbent approaches, three critical gaps. Qatalyst is built to fill the space none of them can reach.</p>
   </div>
 
   <div class="market-grid">
@@ -1013,7 +1022,7 @@ ONS</div>
       <div class="mc-missing">✗ Cannot leverage quantum entanglement-style dependencies</div>
     </div>
     <div class="market-card ours reveal d2">
-      <div class="mc-badge us">AnomaQ</div>
+      <div class="mc-badge us">Qatalyst</div>
       <div class="mc-name">Quantum-native multi-modal anomaly detection</div>
       <div class="mc-desc">Quantum kernel methods operating on the full feature manifold simultaneously.</div>
       <div class="mc-has">✓ Quantum feature space captures entanglement-style correlations</div>
@@ -1221,7 +1230,7 @@ MAP</div>
     <div class="section-mid">
     <span class="overline reveal">Under the Hood</span>
     <h2 class="section-h reveal d1">The circuit, <em>explained</em></h2>
-    <p class="section-p reveal d2">Click any gate to see exactly what it does to your data — in data science terms. This is how AnomaQ turns sensor readings into quantum anomaly scores.</p>
+    <p class="section-p reveal d2">Click any gate to see exactly what it does to your data — in data science terms. This is how Qatalyst turns sensor readings into quantum anomaly scores.</p>
   </div>
   <div style="max-width:860px;margin:0 auto" class="reveal">
     <div id="circuit-viz"></div>
@@ -1276,7 +1285,7 @@ KEPT</div>
     <div class="section-mid">
     <span class="overline reveal">Feature Encoding</span>
     <h2 class="section-h reveal d1">From sensors <em>to qubits</em></h2>
-    <p class="section-p reveal d2">AnomaQ compresses your sensor features through PCA, then maps each principal component onto a qubit. Hover over nodes to see which features drive each qubit.</p>
+    <p class="section-p reveal d2">Qatalyst compresses your sensor features through PCA, then maps each principal component onto a qubit. Hover over nodes to see which features drive each qubit.</p>
   </div>
   <div style="max-width:1000px;margin:0 auto" class="reveal">
     <div id="qubit-map-viz"></div>
@@ -1337,7 +1346,7 @@ ALGOS</div>
   <div style="max-width:780px;margin:0 auto;border:1px solid var(--border);border-radius:var(--r2);background:rgba(255,255,255,.85);box-shadow:var(--sh2);overflow:hidden">
     <div class="titlebar">
       <div class="dots"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div></div>
-      <div class="titlebar-txt">AnomaQ Analysis Engine</div>
+      <div class="titlebar-txt">Qatalyst Analysis Engine</div>
     </div>
 
     <!-- Input type selector -->
@@ -1636,28 +1645,83 @@ if(runBtn)runBtn.addEventListener('click',run);
 async function run(){
   if(!selectedFile)return;
   const useQ=(document.getElementById('use-quantum')||{}).checked;
-  const runBtn=document.getElementById('run-btn');if(runBtn)runBtn.disabled=true;
-  document.getElementById('results').innerHTML='';
-  document.getElementById('results-tab-bar').style.display='none';
-  document.getElementById('err-box').style.display='none';
-  const prog=document.getElementById('progress'),fill=document.getElementById('prog-fill'),lbl=document.getElementById('prog-lbl'),pct=document.getElementById('prog-pct');
-  prog.style.display='block';
-  fill.style.width='2%';lbl.textContent='UPLOADING...';pct.textContent='2%';
+  const runBtn=document.getElementById('run-btn');
+  if(runBtn)runBtn.disabled=true;
+
+  const resultsEl=document.getElementById('results');
+  const tabBar=document.getElementById('results-tab-bar');
+  const errBox=document.getElementById('err-box');
+  const prog=document.getElementById('progress');
+  const fill=document.getElementById('prog-fill');
+  const lbl=document.getElementById('prog-lbl');
+  const pct=document.getElementById('prog-pct');
+
+  if(resultsEl)resultsEl.innerHTML='';
+  if(tabBar)tabBar.style.display='none';
+  if(errBox)errBox.style.display='none';
+  if(prog)prog.style.display='block';
+
+  function setProgress(p,label){
+    if(fill)fill.style.width=p+'%';
+    if(lbl)lbl.textContent=label.toUpperCase();
+    if(pct)pct.textContent=p+'%';
+  }
+  function showError(msg){
+    if(prog)prog.style.display='none';
+    if(errBox){errBox.style.display='block';errBox.innerHTML=msg;}
+    const rb=document.getElementById('run-btn');if(rb)rb.disabled=false;
+  }
+
+  setProgress(2,'Connecting to server...');
 
   const form=new FormData();
   form.append('file',selectedFile);
-  const params=new URLSearchParams({quantum:useQ,feature_map:qConfig.map,entanglement:qConfig.ent,reps:qConfig.reps,input_type:currentInputType});
+  const params=new URLSearchParams({
+    quantum:useQ,
+    feature_map:qConfig.map,
+    entanglement:qConfig.ent,
+    reps:qConfig.reps,
+    input_type:currentInputType
+  });
+
+  // Determine API base — same origin when deployed, localhost:8000 for local dev
+  const apiBase = window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'
+    ? `${window.location.protocol}//${window.location.hostname}:8000`
+    : '';
 
   try{
-    const res=await fetch(`/analyze-stream?${params}`,{method:'POST',body:form});
-    if(!res.ok){
-      const e=await res.json().catch(()=>({detail:'Server error'}));
-      throw new Error(e.detail||'Server error');
+    setProgress(4,'Uploading file...');
+    let res;
+    try{
+      res = await fetch(`${apiBase}/analyze-stream?${params}`,{method:'POST',body:form});
+    } catch(networkErr){
+      showError(`
+        <strong>⚠ Cannot reach the analysis server.</strong><br><br>
+        <span style="font-weight:normal">
+        Make sure the backend is running:<br>
+        <code style="background:rgba(0,0,0,.06);padding:2px 6px;border-radius:4px;font-size:.85em">
+        cd nautilus-main && python main.py
+        </code><br><br>
+        Then open <code style="background:rgba(0,0,0,.06);padding:2px 6px;border-radius:4px;font-size:.85em">http://localhost:8000</code>
+        instead of opening index.html directly.<br><br>
+        <em style="color:var(--ink4);font-size:.85em">Error: ${networkErr.message}</em>
+        </span>
+      `);
+      return;
     }
+
+    if(!res.ok){
+      const e=await res.json().catch(()=>({detail:`HTTP ${res.status}`}));
+      showError(`⚠ Server error: ${e.detail||res.statusText}`);
+      return;
+    }
+
+    setProgress(8,'Reading stream...');
     const reader=res.body.getReader();
     const decoder=new TextDecoder();
     let buf='';
     let resultData=null;
+
     while(true){
       const {done,value}=await reader.read();
       if(done)break;
@@ -1673,25 +1737,34 @@ async function run(){
           if(line.startsWith('data: '))data=line.slice(6).trim();
         }
         if(!data)continue;
-        const parsed=JSON.parse(data);
-        if(event==='progress'){fill.style.width=parsed.pct+'%';lbl.textContent=parsed.label.toUpperCase();pct.textContent=parsed.pct+'%';}
-        else if(event==='result'){resultData=parsed;}
-        else if(event==='error'){throw new Error(parsed.message||'Analysis failed');}
+        let parsed;
+        try{ parsed=JSON.parse(data); }catch{ continue; }
+        if(event==='progress'){
+          setProgress(parsed.pct, parsed.label);
+        } else if(event==='result'){
+          resultData=parsed;
+        } else if(event==='error'){
+          showError('⚠ '+( parsed.message||'Analysis failed'));
+          return;
+        }
       }
     }
-    fill.style.width='100%';pct.textContent='100%';lbl.textContent='COMPLETE ✓';
-    setTimeout(()=>{prog.style.display='none'},700);
-    if(resultData)render(resultData,useQ);
-    else throw new Error('No results received from server');
-    const _rb=document.getElementById('run-btn');if(_rb)_rb.disabled=false;
-  }catch(e){
-    prog.style.display='none';
-    const eb=document.getElementById('err-box');
-    eb.textContent='⚠ '+e.message;
-    eb.style.display='block';
-    const _rb=document.getElementById('run-btn');if(_rb)_rb.disabled=false;
+
+    setProgress(100,'Complete ✓');
+    setTimeout(()=>{ if(prog)prog.style.display='none'; },600);
+
+    if(resultData){
+      render(resultData,useQ);
+    } else {
+      showError('⚠ No results received. Check that main.py is up to date.');
+    }
+    const rb=document.getElementById('run-btn');if(rb)rb.disabled=false;
+
+  } catch(e){
+    showError('⚠ '+e.message);
   }
 }
+
 
 function lerp(a,b,t){return a+(b-a)*t}
 function zCol(z){return z>=3?'#ef4444':z>=2?'#f59e0b':'#00c896'}
@@ -2259,16 +2332,16 @@ function jumpTo(idx) {
 }
 
 function updateDots(activeIdx) {
-  document.querySelectorAll('.pg-dots button').forEach((btn, i) => {
-    // Each cover has its own dot row — update all dot rows
-    const globalIdx = Math.floor(i / N); // not needed since all covers share same count
-  });
-  // Re-render all dot buttons based on active
+  // Update dot buttons
   document.querySelectorAll('.pg-dot, .pg-dot-active').forEach(btn => {
     const j = parseInt(btn.dataset.j);
     if (!isNaN(j)) {
       btn.className = j === activeIdx ? 'pg-dot-active' : 'pg-dot';
     }
+  });
+  // Update top nav active state
+  document.querySelectorAll('.mn-btn').forEach((btn, i) => {
+    btn.classList.toggle('mn-active', i === activeIdx);
   });
 }
 
