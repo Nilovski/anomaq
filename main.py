@@ -771,7 +771,7 @@ SCENARIOS = {
 #  an `is_anomaly` truth column.
 # ══════════════════════════════════════════════════════════════════════════════
 
-DEMO_DATA_DIR = Path(__file__).resolve().parent / "demo_data"
+DEMO_DATA_DIR = Path(__file__).resolve().parent  # CSVs live in repo root
 TRUTH_COL_NAMES = {"is_anomaly", "label", "true_label", "y", "ground_truth"}
 
 REAL_DATASETS = {
